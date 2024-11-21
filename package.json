@@ -1,16 +1,24 @@
 {
-  "name": "21-11-24",
+  "name": "sportzpoint",
   "version": "1.0.0",
-  "main": "inedex.js",
+  "description": "sportzpoint backend",
+  "main": "index.js",
+  "type": "module",
+  "repository": "git@github.com:sajdakabir/sportzpoint-be.git",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "sportzpoint",
+  "license": "MIT",
   "dependencies": {
+    "compression": "^1.7.5",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "joi": "^17.13.3",
+    "mongoose": "^8.8.2",
     "nodemon": "^3.1.7"
   }
 }
