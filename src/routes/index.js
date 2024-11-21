@@ -5,7 +5,7 @@
 const initRoutes = (app) => {
     app.get("/", async (req, res) => {
         res.json({
-            "message": "Welcome to Fanbase AI Developers Portal"
+            "message": "Welcome to Sportzpoint Developers Portal"
         })
     })
 
