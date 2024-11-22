@@ -55,3 +55,22 @@ export const searchTagByNameController = async (req, res, next) => {
     next(err);
   }
 };
+
+export const searchCategoryByNameController = async (req, res, next) => {
+  try {
+    const { name } = req.query; 
+    if (!name) {
+      return res.status(400).json({ message: "Category name is required" });
+    }
+
+    const category = await Category.findOne({ name: new RegExp(name, 'i') });
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    return res.status(200).json({ category });
+  } catch (err) {
+    console.log("err: ", err);
+    next(err);
+  }
+};
