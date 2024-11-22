@@ -2,6 +2,8 @@ import { Article } from "../model/articel.model.js";
 import { Category } from "../model/category.model.js";
 import { Tag } from "../model/tag.model.js";
 import { User } from "../model/user.model.js";
+import mongoose from "mongoose";
+
 
 export const createArticleController = async (req, res, next) => {
   const requestedData = req.body;
@@ -263,3 +265,36 @@ export const getArticlesByTagSlug = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+export const getLatestArticles = async (req, res) => {
+    try {
+        const { excludeId } = req.query;
+
+        // Build the base query
+        const query = {
+            published_at_datetime: { $ne: null }, // Ensure only published articles are included
+        };
+
+        // Add the `_id` exclusion condition if a valid `excludeId` is provided
+        if (excludeId && mongoose.Types.ObjectId.isValid(excludeId)) {
+            query._id = { $ne: excludeId };
+        }
+
+        // Fetch the latest articles
+        const articles = await Article.find(query)
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
+            .limit(3); // Fetch only 3 articles
+
+        // Return the response
+        res.status(200).json({ articles });
+    } catch (error) {
+        console.error("Error fetching latest articles:", error.message);
+        res.status(500).json({ message: "An error occurred while retrieving the articles", error: error.message });
+    }
+};
+

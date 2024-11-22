@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug } from "../controllers/article.controller.js";
+import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug, getLatestArticles } from "../controllers/article.controller.js";
 
 
 const router = Router();
@@ -11,12 +11,11 @@ router.route("/category/search").get(searchCategoryByNameController)
 router.route("/article/create").post(createArticleController)
 router.route("/article/update").put(updateArticleController)
 router.route("/article/publish").get(publishArticleController)
+router.get("/article/latest-articles", getLatestArticles);
 router.get("/articles/category/:slug", getArticlesByCategorySlug);
 router.get("/articles/tags/:slug", getArticlesByTagSlug);
 router.get("/article/:id", getArticleByIdController);
 
-
-// router.get("/la/:id", getArticleByIdController);
 
 
 // published posts
