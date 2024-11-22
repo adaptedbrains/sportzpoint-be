@@ -1,6 +1,7 @@
 import { Article } from "../model/articel.model.js";
 import { Category } from "../model/category.model.js";
 import { Tag } from "../model/tag.model.js";
+import { User } from "../model/user.model.js";
 
 export const createArticleController = async (req, res, next) => {
   const requestedData = req.body;
@@ -152,8 +153,8 @@ export const getArticlesByCategorySlug = async (req, res) => {
             .populate("primary_category", "name slug") // Populate primary category
             .populate("categories", "name slug")       // Populate secondary categories
             .populate("tags", "name slug")             // Populate tags
-            // .populate("author")          // Populate author details
-            // .populate("credits", "name email")         // Populate credits details
+            .populate("author", "name email social_profiles profile_picture")          // Populate author details
+            .populate("credits", "name email social_profiles profile_picture")         // Populate credits details
             .sort({ published_at_datetime: -1 })       // Sort by published_at_datetime
             .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
             .limit(limitValue);                        // Limit the number of documents
