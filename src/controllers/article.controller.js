@@ -189,17 +189,25 @@ export const getArticleByIdController = async (req, res) => {
         const { id } = req.params; // Get the article ID from the URL parameters
 
         // Find the article by ID
-        const article = await Article.findById(id)  .populate("primary_category", "name slug") // Populate primary category
-        .populate("categories", "name slug")    
-        .populate("tags", "name slug")  
-        .populate("author", "name email social_profiles profile_picture")  
-        .populate("credits", "name email social_profiles profile_picture") 
+        const article = await Article.findById(id)
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")
+            .populate("tags", "name slug")
+            .populate("author", "name email social_profiles profile_picture")
+            .populate("credits", "name email social_profiles profile_picture");
 
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
         }
 
-        res.status(200).json({ article });
+        // Fetch the 5 latest articles
+        const latestArticles = await Article.find({
+            published_at_datetime: { $ne: null } // Ensure `published_at_datetime` is not null
+        })
+            .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
+            .limit(5); // Limit to 5 articles
+
+        res.status(200).json({ article, latestArticles });
     } catch (error) {
         res.status(500).json({ message: "An error occurred while retrieving the article", error: error.message });
     }
