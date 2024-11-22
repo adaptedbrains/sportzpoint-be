@@ -91,3 +91,43 @@ export const updateArticleController = async (req, res) => {
         res.status(500).json({ message: "An error occurred while updating the article", error: error.message });
     }
 };
+
+
+export const publishArticleController = async (req, res) => {
+    try {
+        // Get the limit and page from query parameters, with default values
+        const limit = parseInt(req.query.limit, 10) || 10; // Default limit is 10
+        const page = parseInt(req.query.page, 10) || 1;    // Default page is 1
+
+        // Calculate the number of documents to skip
+        const skip = (page - 1) * limit;
+
+        // Query articles with published_at_datetime and apply pagination
+        const articles = await Article.find({
+            published_at_datetime: { $ne: null } // Only published articles
+        })
+            .limit(limit) // Limit the number of results
+            .skip(skip)   // Skip documents for pagination
+            .sort({ published_at_datetime: -1 }); // Optional: sort by publish date (descending)
+
+        // Count the total number of articles matching the query (for pagination metadata)
+        const totalCount = await Article.countDocuments({
+            published_at_datetime: { $ne: null }
+        });
+
+        // Send the response with articles and pagination info
+        res.status(200).json({
+            articles,
+            pagination: {
+                total: totalCount,       // Total number of articles
+                limit,                   // Number of articles per page
+                currentPage: page,       // Current page
+                totalPages: Math.ceil(totalCount / limit) // Total number of pages
+            }
+        });
+    } catch (error) {
+        // Handle errors gracefully
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
