@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { db } from "../../loaders/db.loader.js";
+import { db } from "../loaders/db.loader.js";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema(
     meta_description: { type: String },
     display_order: { type: Number, required: true },
     roles: {
-        type: Schema.Types.Array
+        type: mongoose.Schema.Types.Array
     },
     description: { type: String },
     hide_on_website: { type: Boolean, default: false },

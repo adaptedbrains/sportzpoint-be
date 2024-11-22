@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { db } from "../../loaders/db.loader.js";
+import { db } from "../loaders/db.loader.js";
 
 const ArticleSchema = new mongoose.Schema({
   post_id: { type: Number, unique: true },
@@ -8,29 +8,29 @@ const ArticleSchema = new mongoose.Schema({
   summary: { type: String },
   legacy_url: { type: String },
   primary_category:[{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Category'
 }],
 categories:[{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Category'
 }],
 tags:[{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Tag'
 }],
 live_blog_updates:[{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'LiveBlogPpdates'
 }],
 author:{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
 },
-credits:{
-    type: Schema.Types.ObjectId,
+credits:[{
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-},
+}],
   published_at_datetime: { type: Date },
   updated_at_datetime: { type: Date },
   custom_published_at: { type: Date },

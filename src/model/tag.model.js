@@ -1,11 +1,9 @@
 import { Schema } from "mongoose";
-import { db } from "../../loaders/db.loader.js";
+import { db } from "../loaders/db.loader.js";
 
 const TagSchema = new Schema({
     id: {
-        type: Number,
-        required: true,
-        unique: true
+        type: Number
     },
     name: {
         type: String,
