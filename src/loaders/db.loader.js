@@ -10,5 +10,12 @@ const db = createConnection(environment.MONGO_URI, {
     autoIndex: false
 })
 
+db.on('connected', () => {
+    console.log("db connected");
+});
+
+db.on('error', (error) => {
+    console.error("Error connecting to MongoDB:", error);
+});
+
 export { db }
-console.log("db connected")
