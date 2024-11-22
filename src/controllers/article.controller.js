@@ -131,3 +131,47 @@ export const publishArticleController = async (req, res) => {
     }
 };
 
+export const getArticlesByCategorySlug = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const { limit = 10, page = 1 } = req.query;
+
+        // Validate limit and page
+        const limitValue = Math.max(Number(limit), 1); // Ensure limit is at least 1
+        const pageValue = Math.max(Number(page), 1);   // Ensure page is at least 1
+
+        // Find the category by its slug
+        const category = await Category.findOne({ slug });
+
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        // Fetch articles with populated references
+        const articles = await Article.find({ primary_category: category._id })
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            // .populate("author")          // Populate author details
+            // .populate("credits", "name email")         // Populate credits details
+            .sort({ published_at_datetime: -1 })       // Sort by published_at_datetime
+            .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
+            .limit(limitValue);                        // Limit the number of documents
+
+        // Get the total count of articles for the category
+        const totalArticles = await Article.countDocuments({ primary_category: category._id });
+
+        res.status(200).json({
+            articles,
+            pagination: {
+                total: totalArticles,
+                limit: limitValue,
+                page: pageValue,
+                totalPages: Math.ceil(totalArticles / limitValue),
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching articles by category slug:", error.message);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
