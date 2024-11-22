@@ -12,7 +12,7 @@ router.route("/article/create").post(createArticleController)
 router.route("/article/update").put(updateArticleController)
 router.route("/article/publish").get(publishArticleController)
 router.get("/articles/category/:slug", getArticlesByCategorySlug);
-router.get("/articles/tag/:slug", getArticlesByTagSlug);
+router.get("/articles/tags/:slug", getArticlesByTagSlug);
 router.get("/article/:id", getArticleByIdController);
 
 
