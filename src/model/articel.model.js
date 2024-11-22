@@ -15,6 +15,22 @@ categories:[{
     type: Schema.Types.ObjectId,
     ref: 'Category'
 }],
+tags:[{
+    type: Schema.Types.ObjectId,
+    ref: 'Tag'
+}],
+live_blog_updates:[{
+    type: Schema.Types.ObjectId,
+    ref: 'LiveBlogPpdates'
+}],
+author:{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+},
+credits:{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+},
   published_at_datetime: { type: Date },
   updated_at_datetime: { type: Date },
   custom_published_at: { type: Date },
