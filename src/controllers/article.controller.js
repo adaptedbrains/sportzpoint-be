@@ -74,3 +74,20 @@ export const searchCategoryByNameController = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateArticleController = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const updateData = req.body; 
+
+        const updatedArticle = await ArticleModel.updateArticle(id, updateData);
+
+        if (!updatedArticle) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+
+        res.status(200).json({ message: "Article updated successfully", article: updatedArticle });
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred while updating the article", error: error.message });
+    }
+};
