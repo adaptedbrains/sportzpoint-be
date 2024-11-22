@@ -183,11 +183,11 @@ export const getArticleByIdController = async (req, res) => {
 
         // Find the article by ID
         const article = await Article.findById(id)  .populate("primary_category", "name slug") // Populate primary category
-        .populate("categories", "name slug")       // Populate secondary categories
-        .populate("tags", "name slug")             // Populate tags
-        .populate("author", "name email social_profiles profile_picture")          // Populate author details
+        .populate("categories", "name slug")    
+        .populate("tags", "name slug")  
+        .populate("author", "name email social_profiles profile_picture")  
         .populate("credits", "name email social_profiles profile_picture") 
-        
+
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
         }
@@ -195,5 +195,50 @@ export const getArticleByIdController = async (req, res) => {
         res.status(200).json({ article });
     } catch (error) {
         res.status(500).json({ message: "An error occurred while retrieving the article", error: error.message });
+    }
+};
+
+export const getArticlesByTagSlug = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const { limit = 10, page = 1 } = req.query;
+
+        // Validate limit and page
+        const limitValue = Math.max(Number(limit), 1); // Ensure limit is at least 1
+        const pageValue = Math.max(Number(page), 1);   // Ensure page is at least 1
+
+        // Find the tag by its slug
+        const tag = await Tag.findOne({ slug });
+
+        if (!tag) {
+            return res.status(404).json({ message: "Tag not found" });
+        }
+
+        // Fetch articles with populated references
+        const articles = await Article.find({ tags: tag._id })
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture")          // Populate author details
+            .populate("credits", "name email social_profiles profile_picture")         // Populate credits details
+            .sort({ published_at_datetime: -1 })       // Sort by published_at_datetime
+            .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
+            .limit(limitValue);                        // Limit the number of documents
+
+        // Get the total count of articles for the tag
+        const totalArticles = await Article.countDocuments({ tags: tag._id });
+
+        res.status(200).json({
+            articles,
+            pagination: {
+                total: totalArticles,
+                limit: limitValue,
+                page: pageValue,
+                totalPages: Math.ceil(totalArticles / limitValue),
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching articles by tag slug:", error.message);
+        res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
