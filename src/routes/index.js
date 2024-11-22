@@ -3,7 +3,7 @@ import ArticleRouter from "./article.route.js";
  * @param {import('express').Application} app
  */
 const initRoutes = (app) => {
-    app.use("/artical", ArticleRouter);
+    app.use("/", ArticleRouter);
     app.get("/", async (req, res) => {
         res.json({
             "message": "Welcome to Sportzpoint Developers Portal"

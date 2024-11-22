@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { createArticleController } from "../controllers/article.controller.js";
+import { createArticleController, getAllTagController } from "../controllers/article.controller.js";
 
 
 const router = Router();
+router.route("/tag/").get(getAllTagController)
 
-router.route("/create").post(createArticleController)
+router.route("/artical/create").post(createArticleController)
+
+
 
 export default router;
