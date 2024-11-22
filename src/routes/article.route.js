@@ -16,6 +16,9 @@ router.get("/articles/tag/:slug", getArticlesByTagSlug);
 router.get("/article/:id", getArticleByIdController);
 
 
+// router.get("/la/:id", getArticleByIdController);
+
+
 // published posts
 
 

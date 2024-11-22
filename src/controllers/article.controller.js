@@ -148,19 +148,25 @@ export const getArticlesByCategorySlug = async (req, res) => {
             return res.status(404).json({ message: "Category not found" });
         }
 
-        // Fetch articles with populated references
-        const articles = await Article.find({ primary_category: category._id })
+        // Fetch articles that have a published_at_datetime and belong to the category
+        const articles = await Article.find({
+            primary_category: category._id,
+            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+        })
             .populate("primary_category", "name slug") // Populate primary category
             .populate("categories", "name slug")       // Populate secondary categories
             .populate("tags", "name slug")             // Populate tags
             .populate("author", "name email social_profiles profile_picture")          // Populate author details
             .populate("credits", "name email social_profiles profile_picture")         // Populate credits details
-            .sort({ published_at_datetime: -1 })       // Sort by published_at_datetime
+            .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
             .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
             .limit(limitValue);                        // Limit the number of documents
 
-        // Get the total count of articles for the category
-        const totalArticles = await Article.countDocuments({ primary_category: category._id });
+        // Get the total count of articles with a `published_at_datetime` for the category
+        const totalArticles = await Article.countDocuments({
+            primary_category: category._id,
+            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+        });
 
         res.status(200).json({
             articles,
@@ -176,6 +182,7 @@ export const getArticlesByCategorySlug = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
 
 export const getArticleByIdController = async (req, res) => {
     try {
@@ -215,18 +222,24 @@ export const getArticlesByTagSlug = async (req, res) => {
         }
 
         // Fetch articles with populated references
-        const articles = await Article.find({ tags: tag._id })
+        const articles = await Article.find({
+            tags: tag._id,
+            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+        })
             .populate("primary_category", "name slug") // Populate primary category
             .populate("categories", "name slug")       // Populate secondary categories
             .populate("tags", "name slug")             // Populate tags
             .populate("author", "name email social_profiles profile_picture")          // Populate author details
             .populate("credits", "name email social_profiles profile_picture")         // Populate credits details
-            .sort({ published_at_datetime: -1 })       // Sort by published_at_datetime
+            .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
             .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
             .limit(limitValue);                        // Limit the number of documents
 
-        // Get the total count of articles for the tag
-        const totalArticles = await Article.countDocuments({ tags: tag._id });
+        // Get the total count of articles with a `published_at_datetime` for the tag
+        const totalArticles = await Article.countDocuments({
+            tags: tag._id,
+            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+        });
 
         res.status(200).json({
             articles,
