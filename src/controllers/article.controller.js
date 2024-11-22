@@ -1,4 +1,5 @@
 import { Article } from "../model/articel.model.js";
+import { Category } from "../model/category.model.js";
 import { Tag } from "../model/tag.model.js";
 
 export const createArticleController = async (req, res, next) => {
@@ -20,6 +21,16 @@ export const getAllTagController = async (req, res, next) => {
   try {
     const tags = await Tag.find();
     return res.status(200).json({ tags });
+  } catch (err) {
+    console.log("err: ", err);
+    next(err);
+  }
+};
+
+export const getAllCategoryController = async (req, res, next) => {
+  try {
+    const categories = await Category.find();
+    return res.status(200).json({ categories });
   } catch (err) {
     console.log("err: ", err);
     next(err);
