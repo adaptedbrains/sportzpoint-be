@@ -176,3 +176,24 @@ export const getArticlesByCategorySlug = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+export const getArticleByIdController = async (req, res) => {
+    try {
+        const { id } = req.params; // Get the article ID from the URL parameters
+
+        // Find the article by ID
+        const article = await Article.findById(id)  .populate("primary_category", "name slug") // Populate primary category
+        .populate("categories", "name slug")       // Populate secondary categories
+        .populate("tags", "name slug")             // Populate tags
+        .populate("author", "name email social_profiles profile_picture")          // Populate author details
+        .populate("credits", "name email social_profiles profile_picture") 
+        
+        if (!article) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+
+        res.status(200).json({ article });
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred while retrieving the article", error: error.message });
+    }
+};
