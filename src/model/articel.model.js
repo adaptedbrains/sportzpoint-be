@@ -3,7 +3,7 @@ import { db } from "../loaders/db.loader.js";
 
 const ArticleSchema = new mongoose.Schema({
   post_id: { type: Number, unique: true },
-  type: { type: String, enum: ["Article", "Video", "Web Story", "Photo Gallery", "Live Blog", "Custom Page", "Newsletter"], required: true },
+  type: { type: String, enum: ["Article", "Video", "Web Story", "Photo Gallery", "Live Blog", "Custom Page", "Newsletter", "LiveBlog", "CustomPage", "Gallery","WebStory" ], required: true },
   title: { type: String, required: true },
   slug: {
     type: String,
@@ -44,7 +44,7 @@ credits:[{
   hide_banner_image: { type: Boolean, default: false },
   seo_desc: { type: String },
   seo_title: { type: String },
-  content: { type: String, required: true },
+  content: { type: String },
 });
 
 const Article = db.model('Article', ArticleSchema, 'articles')

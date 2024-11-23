@@ -5,6 +5,7 @@ import Joi from "joi"
 import { initRoutes } from "./routes/index.js"
 import { environment } from "./loaders/environment.loader.js"
 
+
 const { ValidationError } = Joi;
 const app = express()
 app.use(cors())
@@ -15,6 +16,7 @@ app.use(
         extended: true
     })
 )
+
 initRoutes(app)
 // Express error handler
 app.use((err, req, res, next) => {
