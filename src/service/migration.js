@@ -185,65 +185,130 @@ import { User } from "../model/user.model.js";
 //   }
 // };
 
-const generateSlug = (title, postId) => {
-  // Generate a slug by replacing spaces with hyphens, removing non-alphanumeric characters
-  let slug = title
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/[^\w-]+/g, '') // Remove non-alphanumeric characters except hyphens
-    .toLowerCase(); // Convert to lowercase
+// const generateSlug = (title, postId) => {
+//   // Generate a slug by replacing spaces with hyphens, removing non-alphanumeric characters
+//   let slug = title
+//     .replace(/\s+/g, '-') // Replace spaces with hyphens
+//     .replace(/[^\w-]+/g, '') // Remove non-alphanumeric characters except hyphens
+//     .toLowerCase(); // Convert to lowercase
 
-  // Append postId to ensure uniqueness (optional)
-  if (postId) slug = `${slug}-${postId}`;
+//   // Append postId to ensure uniqueness (optional)
+//   if (postId) slug = `${slug}-${postId}`;
 
-  return slug;
-};
+//   return slug;
+// };
 
-const updateSlugs = async () => {
-  console.log("Starting slug migration...");
+// const updateSlugs = async () => {
+//   console.log("Starting slug migration...");
 
-  try {
-    // Fetch all articles without a slug or where the slug is empty
-    const articles = await Article.find({ $or: [{ slug: { $exists: false } }, { slug: '' }] });
-    if (articles.length === 0) {
-      console.log("No articles require slug updates.");
-      process.exit(0);
-    }
+//   try {
+//     // Fetch all articles without a slug or where the slug is empty
+//     const articles = await Article.find({ $or: [{ slug: { $exists: false } }, { slug: '' }] });
+//     if (articles.length === 0) {
+//       console.log("No articles require slug updates.");
+//       process.exit(0);
+//     }
 
-    for (const article of articles) {
-      const postId = article.post_id || ''; // Use post_id for uniqueness if available
-      const seoTitle = article.seo_title || article.title || ''; // Use `seo_title`, fallback to `title`
+//     for (const article of articles) {
+//       const postId = article.post_id || ''; // Use post_id for uniqueness if available
+//       const seoTitle = article.seo_title || article.title || ''; // Use `seo_title`, fallback to `title`
 
-      if (!seoTitle) {
-        console.warn(`Skipping article ID: ${article._id} because it has no SEO title or title.`);
-        continue;
-      }
+//       if (!seoTitle) {
+//         console.warn(`Skipping article ID: ${article._id} because it has no SEO title or title.`);
+//         continue;
+//       }
 
-      const slug = generateSlug(seoTitle, postId); // Generate the slug
+//       const slug = generateSlug(seoTitle, postId); // Generate the slug
 
-      // Update the article with the generated slug
-      article.slug = slug;
+//       // Update the article with the generated slug
+//       article.slug = slug;
 
-      try {
-        await article.save();
-        console.log(`Updated article ID: ${article._id} with slug: ${slug}`);
-      } catch (saveError) {
-        console.error(`Error saving article ID: ${article._id}`, saveError);
-      }
-    }
+//       try {
+//         await article.save();
+//         console.log(`Updated article ID: ${article._id} with slug: ${slug}`);
+//       } catch (saveError) {
+//         console.error(`Error saving article ID: ${article._id}`, saveError);
+//       }
+//     }
 
-    console.log('Slug migration completed!');
-    process.exit(0);
-  } catch (error) {
-    console.error('Error updating slugs:', error);
-    process.exit(1);
-  }
-};
+//     console.log('Slug migration completed!');
+//     process.exit(0);
+//   } catch (error) {
+//     console.error('Error updating slugs:', error);
+//     process.exit(1);
+//   }
+// };
 
 
 
 // updateSlugs();
 
+
+
+import fs from "fs";
+import csv from "csv-parser";
+
+
+
+const updateRolesFromCSV = async () => {
+  const csvFilePath = "/Users/sajdakabir/Downloads/db/sportz.users - sportz.users.csv"; 
+  console.log("hu")
+  try {
+    // Step 1: Parse CSV
+    const updates = [];
+    fs.createReadStream(csvFilePath)
+      .pipe(csv())
+      .on("data", (row) => {
+        // Collect data from each row
+        updates.push({ email: row.email, role: row.role });
+      })
+      .on("end", async () => {
+        console.log("CSV file successfully processed.");
+
+        // Step 2: Update roles in MongoDB
+        for (const { email, role } of updates) {
+          console.log("Saj: ", updates)
+          if (!email || !role) {
+            console.warn(`Skipping row with missing email or role: ${email}, ${role}`);
+            continue;
+          }
+
+          try {
+            // Find user by email and update the role
+            const user = await User.findOneAndUpdate(
+              { email }, // Find user by email
+              { $set: { roles: [role] } }, // Update the `roles` field
+              { new: true } // Return the updated document
+            );
+
+            if (user) {
+              console.log(`Updated user: ${email} with role: ${role}`);
+            } else {
+              console.warn(`No user found with email: ${email}`);
+            }
+          } catch (err) {
+            console.error(`Error updating user with email: ${email}`, err);
+          }
+        }
+
+        console.log("Role update migration completed.");
+        process.exit(0);
+      });
+  } catch (err) {
+    console.error("Error processing migration:", err);
+    process.exit(1);
+  }
+};
+
+// Run the migration
+const csvFilePath = "/Users/sajdakabir/Downloads/db/sportz.users.csv"; // Replace with the path to your CSV file
+// updateRolesFromCSV(csvFilePath);
+
+
+
 export {
   // migrateData
-  updateSlugs
+  // updateSlugs
+
+  updateRolesFromCSV
 };
