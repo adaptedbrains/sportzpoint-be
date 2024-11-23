@@ -109,6 +109,11 @@ export const publishArticleController = async (req, res) => {
         const articles = await Article.find({
             published_at_datetime: { $ne: null } // Only published articles
         })
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .limit(limit) // Limit the number of results
             .skip(skip)   // Skip documents for pagination
             .sort({ published_at_datetime: -1 }); // Optional: sort by publish date (descending)
