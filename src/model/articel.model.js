@@ -45,6 +45,7 @@ credits:[{
   seo_desc: { type: String },
   seo_title: { type: String },
   content: { type: String },
+  status: { type: String, enum: ["draft", "published"], default: "draft" }
 });
 
 const Article = db.model('Article', ArticleSchema, 'articles')

@@ -414,3 +414,40 @@ export const getPublishedArticlesByType = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+export const saveAsDraftController = async (req, res) => {
+    try {
+        const { type, title, slug, content } = req.body;
+
+        // Create a new article with status 'draft'
+        const newArticle = new Article({
+            type,
+            title,
+            slug,
+            content,
+            status: 'draft'
+        });
+
+        await newArticle.save();
+
+        return res.status(201).json({ message: 'Article saved as draft successfully', article: newArticle });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+};
+
+export const getDraftArticlesByType = async (req, res) => {
+    try {
+        const { type } = req.query;
+
+        // Fetch draft articles by type
+        const articles = await Article.find({
+            type,
+            status: 'draft'
+        });
+
+        return res.status(200).json({ articles });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+};
