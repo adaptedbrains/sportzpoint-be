@@ -245,70 +245,117 @@ import { User } from "../model/user.model.js";
 
 
 
-import fs from "fs";
-import csv from "csv-parser";
+// import fs from "fs";
+// import csv from "csv-parser";
 
 
 
-const updateRolesFromCSV = async () => {
-  const csvFilePath = "/Users/sajdakabir/Downloads/db/sportz.users - sportz.users.csv"; 
-  console.log("hu")
+// const updateRolesFromCSV = async () => {
+//   const csvFilePath = "/Users/sajdakabir/Downloads/db/sportz.users - sportz.users.csv"; 
+//   console.log("hu")
+//   try {
+//     // Step 1: Parse CSV
+//     const updates = [];
+//     fs.createReadStream(csvFilePath)
+//       .pipe(csv())
+//       .on("data", (row) => {
+//         // Collect data from each row
+//         updates.push({ email: row.email, role: row.role });
+//       })
+//       .on("end", async () => {
+//         console.log("CSV file successfully processed.");
+
+//         // Step 2: Update roles in MongoDB
+//         for (const { email, role } of updates) {
+//           console.log("Saj: ", updates)
+//           if (!email || !role) {
+//             console.warn(`Skipping row with missing email or role: ${email}, ${role}`);
+//             continue;
+//           }
+
+//           try {
+//             // Find user by email and update the role
+//             const user = await User.findOneAndUpdate(
+//               { email }, // Find user by email
+//               { $set: { roles: [role] } }, // Update the `roles` field
+//               { new: true } // Return the updated document
+//             );
+
+//             if (user) {
+//               console.log(`Updated user: ${email} with role: ${role}`);
+//             } else {
+//               console.warn(`No user found with email: ${email}`);
+//             }
+//           } catch (err) {
+//             console.error(`Error updating user with email: ${email}`, err);
+//           }
+//         }
+
+//         console.log("Role update migration completed.");
+//         process.exit(0);
+//       });
+//   } catch (err) {
+//     console.error("Error processing migration:", err);
+//     process.exit(1);
+//   }
+// };
+
+// // Run the migration
+// const csvFilePath = "/Users/sajdakabir/Downloads/db/sportz.users.csv"; // Replace with the path to your CSV file
+// // updateRolesFromCSV(csvFilePath);
+
+
+
+// const updateBannerImages = async () => {
+//   console.log("hey..")
+//   try {
+//     const users = await Article.find({ banner_image: { $regex: "^sportzpoint/media/" } });
+
+//     for (const user of users) {
+//       console.log("user: ", user._id)
+//       user.banner_image = user.banner_image.replace("sportzpoint/media/", ""); // Remove the prefix
+//       await user.save(); // Save the updated document
+//     }
+
+//     console.log(`${users.length} records updated`);
+//   } catch (err) {
+//     console.error("Error updating banner images:", err);
+//   }
+// };
+
+
+// Function to update slugs for existing articles
+  const updateSlugs = async () => {
   try {
-    // Step 1: Parse CSV
-    const updates = [];
-    fs.createReadStream(csvFilePath)
-      .pipe(csv())
-      .on("data", (row) => {
-        // Collect data from each row
-        updates.push({ email: row.email, role: row.role });
-      })
-      .on("end", async () => {
-        console.log("CSV file successfully processed.");
+    console.log("hey")
+    // Find all articles that have a legacy_url
+    const articles = await Article.find({ legacy_url: { $exists: true, $ne: null } });
 
-        // Step 2: Update roles in MongoDB
-        for (const { email, role } of updates) {
-          console.log("Saj: ", updates)
-          if (!email || !role) {
-            console.warn(`Skipping row with missing email or role: ${email}, ${role}`);
-            continue;
-          }
+    // Iterate over the articles to update the slug
+    for (const article of articles) {
+      // Split the legacy_url by '/' and get the last part
+      const urlParts = article.legacy_url.split("/");
+      const slug = urlParts[urlParts.length - 1]; // Get the last part of the URL
 
-          try {
-            // Find user by email and update the role
-            const user = await User.findOneAndUpdate(
-              { email }, // Find user by email
-              { $set: { roles: [role] } }, // Update the `roles` field
-              { new: true } // Return the updated document
-            );
+      // Update the slug field if the last part exists
+      if (slug && slug !== article.slug) {
+        article.slug = slug; // Set the new slug
+        await article.save(); // Save the updated article
+        console.log(`Updated slug for article with post_id: ${article.post_id}`);
+      }
+    }
 
-            if (user) {
-              console.log(`Updated user: ${email} with role: ${role}`);
-            } else {
-              console.warn(`No user found with email: ${email}`);
-            }
-          } catch (err) {
-            console.error(`Error updating user with email: ${email}`, err);
-          }
-        }
-
-        console.log("Role update migration completed.");
-        process.exit(0);
-      });
+    console.log(`${articles.length} articles updated successfully!`);
   } catch (err) {
-    console.error("Error processing migration:", err);
-    process.exit(1);
+    console.error("Error updating slugs:", err);
   }
 };
 
-// Run the migration
-const csvFilePath = "/Users/sajdakabir/Downloads/db/sportz.users.csv"; // Replace with the path to your CSV file
-// updateRolesFromCSV(csvFilePath);
+// Call the function to update slugs
 
 
 
 export {
   // migrateData
-  // updateSlugs
-
-  updateRolesFromCSV
+  updateSlugs
 };
