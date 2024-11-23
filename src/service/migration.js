@@ -325,37 +325,79 @@ import { User } from "../model/user.model.js";
 
 
 // Function to update slugs for existing articles
-  const updateSlugs = async () => {
+//   const updateSlugs = async () => {
+//   try {
+//     console.log("hey")
+//     // Find all articles that have a legacy_url
+//     const articles = await Article.find({ legacy_url: { $exists: true, $ne: null } });
+
+//     // Iterate over the articles to update the slug
+//     for (const article of articles) {
+//       // Split the legacy_url by '/' and get the last part
+//       const urlParts = article.legacy_url.split("/");
+//       const slug = urlParts[urlParts.length - 1]; // Get the last part of the URL
+
+//       // Update the slug field if the last part exists
+//       if (slug && slug !== article.slug) {
+//         article.slug = slug; // Set the new slug
+//         await article.save(); // Save the updated article
+//         console.log(`Updated slug for article with post_id: ${article.post_id}`);
+//       }
+//     }
+
+//     console.log(`${articles.length} articles updated successfully!`);
+//   } catch (err) {
+//     console.error("Error updating slugs:", err);
+//   }
+// };
+
+// Call the function to update slugs
+
+
+const updateWebStoryImages = async () => {
+  console.log("Updating web story images...");
   try {
-    console.log("hey")
-    // Find all articles that have a legacy_url
-    const articles = await Article.find({ legacy_url: { $exists: true, $ne: null } });
+    // Find articles of type Web Story with images containing 'sportzpoint/media/'
+    const articles = await Article.find({
+      "content": { $regex: "sportzpoint/media/" },
+      "type": "Web Story"
+    });
 
-    // Iterate over the articles to update the slug
     for (const article of articles) {
-      // Split the legacy_url by '/' and get the last part
-      const urlParts = article.legacy_url.split("/");
-      const slug = urlParts[urlParts.length - 1]; // Get the last part of the URL
+      console.log("Processing article: ", article._id);
+      
+      // Parse the content to manipulate the image sources
+      const contentData = JSON.parse(article.content);
 
-      // Update the slug field if the last part exists
-      if (slug && slug !== article.slug) {
-        article.slug = slug; // Set the new slug
-        await article.save(); // Save the updated article
-        console.log(`Updated slug for article with post_id: ${article.post_id}`);
+      // Check if the content contains web_story images and update each image source
+      if (contentData.data && contentData.data.web_story) {
+        contentData.data.web_story.forEach((webStory) => {
+          if (webStory.img_src && webStory.img_src.includes("sportzpoint/media/")) {
+            // Remove the prefix 'sportzpoint/media/' from the image source
+            webStory.img_src = webStory.img_src.replace("sportzpoint/media/", "");
+          }
+        });
+
+        // Convert the updated content back to a string
+        article.content = JSON.stringify(contentData);
+
+        // Save the updated article
+        await article.save();
       }
     }
 
-    console.log(`${articles.length} articles updated successfully!`);
+    console.log(`${articles.length} records updated`);
   } catch (err) {
-    console.error("Error updating slugs:", err);
+    console.error("Error updating web story images:", err);
   }
 };
 
-// Call the function to update slugs
+
 
 
 
 export {
   // migrateData
-  updateSlugs
+  // updateSlugs
+  updateWebStoryImages
 };
