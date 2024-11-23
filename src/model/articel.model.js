@@ -5,6 +5,11 @@ const ArticleSchema = new mongoose.Schema({
   post_id: { type: Number, unique: true },
   type: { type: String, enum: ["Article", "Video", "Web Story", "Photo Gallery", "Live Blog", "Custom Page", "Newsletter"], required: true },
   title: { type: String, required: true },
+  slug: {
+    type: String,
+    required: true,
+    unique: true
+},
   summary: { type: String },
   legacy_url: { type: String },
   primary_category:[{
