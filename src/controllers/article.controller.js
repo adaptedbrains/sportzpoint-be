@@ -370,3 +370,47 @@ export const getArticlesByType = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+export const getPublishedArticlesByType = async (req, res) => {
+    try {
+        const { type } = req.query; // Get the type from query parameters
+        const { limit = 10, page = 1 } = req.query;
+
+        // Validate limit and page
+        const limitValue = Math.max(Number(limit), 1); // Ensure limit is at least 1
+        const pageValue = Math.max(Number(page), 1);   // Ensure page is at least 1
+
+        // Fetch published articles by type
+        const articles = await Article.find({
+            type, // Assuming 'type' is a field in your Article model
+            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+        })
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
+            .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
+            .limit(limitValue);                        // Limit the number of documents
+
+        // Get the total count of published articles for the type
+        const totalArticles = await Article.countDocuments({
+            type,
+            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+        });
+
+        res.status(200).json({
+            articles,
+            pagination: {
+                total: totalArticles,
+                limit: limitValue,
+                page: pageValue,
+                totalPages: Math.ceil(totalArticles / limitValue),
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching published articles by type:", error.message);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
