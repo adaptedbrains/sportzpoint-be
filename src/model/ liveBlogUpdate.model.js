@@ -3,7 +3,7 @@ import { db } from "../loaders/db.loader.js";
 
 const LiveBlogUpdateSchema = new mongoose.Schema(
   {
-    article: {
+    post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Article",
       required: true,
