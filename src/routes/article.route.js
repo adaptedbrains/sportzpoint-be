@@ -20,7 +20,7 @@ router.get("/article/slug/:slug", getArticleBySlugController);
 
 
 router.get("/posts/published", getPublishedArticlesByType);
-router.post("/posts/draft", saveAsDraftController); //take a look
+router.post("/posts/draft", saveAsDraftController);
 router.get("/posts/draft", getDraftArticlesByType);
 
 

@@ -422,19 +422,12 @@ export const getPublishedArticlesByType = async (req, res) => {
 
 export const saveAsDraftController = async (req, res) => {
     try {
-        const { type, title, slug, content } = req.body;
-
-        // Create a new article with status 'draft'
+        const requestedData = req.body;
         const newArticle = new Article({
-            type,
-            title,
-            slug,
-            content,
-            status: 'draft'
+            ...requestedData,
         });
 
-        await newArticle.save();
-
+        const article = await newArticle.save();
         return res.status(201).json({ message: 'Article saved as draft successfully', article: newArticle });
     } catch (error) {
         return res.status(500).json({ message: 'An error occurred', error });
