@@ -2,6 +2,7 @@ import { Article } from '../model/articel.model.js';
 
 export const publishPostController = async (req, res) => {
     try {
+        console.log("hey")
         const { id } = req.params; // Get MongoDB _id from request parameters
 
         // Find the article by _id and slug
