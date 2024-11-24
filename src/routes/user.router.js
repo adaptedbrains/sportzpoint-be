@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/login", loginUser);
 
 // Route to create a new user (admin only)
-router.post("/create", authenticateJWT, isAdmin, createUser);
+router.post("/team-members/create", authenticateJWT, isAdmin, createUser);
 
 export default router;
