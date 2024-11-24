@@ -472,3 +472,33 @@ export const sendForApprovalController = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred', error });
     }
 };
+
+export const getArticlesByCategoryAndTypeController = async (req, res) => {
+    const { slug, type } = req.params;
+    try {
+        // Find the category by its slug
+        const category = await Category.findOne({ slug });
+
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        // Fetch articles that match the category and type
+        const articles = await Article.find({
+            primary_category: category._id,
+            type, // Assuming 'type' is a field in your Article model
+            published_at_datetime: { $ne: null } // Ensure `published_at_datetime` is not null
+        })
+        .populate("primary_category", "name slug") // Populate primary category
+        .populate("categories", "name slug")       // Populate secondary categories
+        .populate("tags", "name slug")             // Populate tags
+        .populate("author", "name email social_profiles profile_picture") // Populate author details
+        .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+        .sort({ published_at_datetime: -1 }); // Sort by latest `published_at_datetime`
+
+        res.status(200).json({ articles });
+    } catch (error) {
+        console.error("Error fetching articles by category and type:", error.message);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};

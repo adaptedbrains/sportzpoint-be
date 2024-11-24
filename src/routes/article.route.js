@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug, getLatestArticles, getArticleBySlugController, getArticlesByType, getPublishedArticlesByType, saveAsDraftController, getDraftArticlesByType, sendForApprovalController } from "../controllers/article.controller.js";
+import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug, getLatestArticles, getArticleBySlugController, getArticlesByType, getPublishedArticlesByType, saveAsDraftController, getDraftArticlesByType, sendForApprovalController, getArticlesByCategoryAndTypeController } from "../controllers/article.controller.js";
 
 
 const router = Router();
@@ -18,11 +18,16 @@ router.get("/articles/type/:type", getArticlesByType);
 router.get("/article/:id", getArticleByIdController);
 router.get("/article/slug/:slug", getArticleBySlugController);
 
+// New route to get articles by category and type
+router.get("/articles/category/:slug/type/:type", getArticlesByCategoryAndTypeController);
+
 
 router.get("/posts/published", getPublishedArticlesByType);
 router.post("/posts/draft", saveAsDraftController);
 router.get("/posts/draft", getDraftArticlesByType);
 router.get("/posts/send-for-approval", sendForApprovalController);
+
+
 
 
 
