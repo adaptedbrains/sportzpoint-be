@@ -293,7 +293,7 @@ export const getLatestArticles = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
-            .limit(3); // Fetch only 3 articles
+            .limit(4); // Fetch only 3 articles
 
         // Return the response
         res.status(200).json({ articles });
