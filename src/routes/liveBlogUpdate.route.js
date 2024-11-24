@@ -4,9 +4,13 @@ import {
   editLiveBlogUpdate,
   deleteLiveBlogUpdate,
   pinLiveBlogUpdate,
+  getLiveBlogUpdates
 } from "../controllers/liveBlogUpdate.controller.js";
 
 const router = express.Router();
+
+// public route 
+router.get("/post/:postId/live-blog/updates", getLiveBlogUpdates);
 
 // Add live blog update
 // all are going to be protected routes
