@@ -20,3 +20,14 @@ export const publishPostController = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred', error });
     }
 };
+
+
+export const getPendingApprovalPostsController = async (req, res) => {
+    try {
+        const pendingArticles = await Article.find({ status: 'pending_approval' });
+
+        return res.status(200).json({ message: 'Pending approval articles retrieved successfully', articles: pendingArticles });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+};
