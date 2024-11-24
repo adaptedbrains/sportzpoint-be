@@ -425,6 +425,7 @@ export const saveAsDraftController = async (req, res) => {
         const requestedData = req.body;
         const newArticle = new Article({
             ...requestedData,
+            status: "draft"
         });
 
         const article = await newArticle.save();
