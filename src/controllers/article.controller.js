@@ -525,3 +525,21 @@ export const getArticlesByCategoryAndTypeController = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+export const deleteArticleController = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Find the article by its ID and delete it
+        const article = await Article.findByIdAndDelete(id);
+
+        if (!article) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+
+        res.status(200).json({ message: "Article deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting article:", error.message);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};

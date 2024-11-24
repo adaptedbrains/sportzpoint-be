@@ -32,3 +32,24 @@ export const getPendingApprovalPostsController = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred', error });
     }
 };
+
+export const unpublishPostController = async (req, res) => {
+    try {
+        const { id } = req.params; // Get MongoDB _id from request parameters
+
+        // Find the article by _id
+        const article = await Article.findOne({ _id: id });
+
+        if (!article) {
+            return res.status(404).json({ message: 'Article not found' });
+        }
+
+        // Set the published_at_datetime to null
+        article.published_at_datetime = null;
+        await article.save();
+
+        return res.status(200).json({ message: 'Article unpublished successfully', article });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+};
