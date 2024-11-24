@@ -1,10 +1,11 @@
 import { Article } from "../model/articel.model.js";
 import { LiveBlogUpdate } from "../model/ liveBlogUpdate.model.js";
+import { broadcast } from "../../index.js";
 
 export const addLiveBlogUpdate = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { content } = req.body;
+    const requestedData = req.body;
 
     const article = await Article.findById(postId);
 
@@ -26,7 +27,7 @@ export const addLiveBlogUpdate = async (req, res) => {
 
     const update = await LiveBlogUpdate.create({
       post: postId,
-      content,
+      ...requestedData,
     });
 
     article.live_blog_updates.push(update._id);
@@ -47,11 +48,11 @@ export const addLiveBlogUpdate = async (req, res) => {
 export const editLiveBlogUpdate = async (req, res) => {
     try {
       const { updateId } = req.params;
-      const { content } = req.body;
+      const requestedData = req.body;
   
       const update = await LiveBlogUpdate.findByIdAndUpdate(
         updateId,
-        { content, updated_at: new Date() },
+        { ...requestedData, updated_at: new Date() },
         { new: true }
       );
   

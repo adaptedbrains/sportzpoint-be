@@ -5,10 +5,10 @@ const LiveBlogUpdateSchema = new mongoose.Schema(
   {
     post: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Article",
-      required: true,
+      ref: "Article"
     },
-    content: { type: String, required: true },
+    content: { type: String},
+    title: { type: String },
     pinned: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: null },

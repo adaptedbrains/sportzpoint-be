@@ -2,6 +2,20 @@ import { app } from "./src/index.js";
 import { environment } from "./src/loaders/environment.loader.js";
 import { WebSocketServer } from "ws";
 
+// Declare wss variable
+let wss;
+
+// WebSocket broadcast helper
+const broadcast = (data) => {
+  if (wss) {
+    wss.clients.forEach((client) => {
+      if (client.readyState === 1) {
+        client.send(JSON.stringify(data));
+      }
+    });
+  }
+};
+
 // Initialize the HTTP Server
 (async function init() {
   const server = app.listen(environment.PORT, () => {
@@ -9,7 +23,7 @@ import { WebSocketServer } from "ws";
   });
 
   // Initialize WebSocket Server
-  const wss = new WebSocketServer({ server });
+  wss = new WebSocketServer({ server });
 
   // WebSocket connection setup
   wss.on("connection", (ws) => {
@@ -24,15 +38,8 @@ import { WebSocketServer } from "ws";
     });
   });
 
-  // WebSocket broadcast helper
-  const broadcast = (data) => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === 1) {
-        client.send(JSON.stringify(data));
-      }
-    });
-  };
-
-  // Export broadcast function for usage in controllers
+  // Set broadcast function for usage in controllers
   app.set("broadcast", broadcast);
 })();
+
+export { broadcast }; // Export the broadcast function
