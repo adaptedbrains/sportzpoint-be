@@ -449,3 +449,22 @@ export const getDraftArticlesByType = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred', error });
     }
 };
+
+export const sendForApprovalController = async (req, res) => {
+    try {
+        const { articleId } = req.query; // Extract articleId from query parameters
+
+        // Assuming you have a method to find the article by ID and update its status
+        const article = await Article.findById(articleId);
+        if (!article) {
+            return res.status(404).json({ message: 'Article not found' });
+        }
+
+        article.status = 'pending_approval'; // Update the status to 'pending_approval'
+        await article.save();
+
+        return res.status(200).json({ message: 'Article sent for approval successfully', article });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred', error });
+    }
+};
