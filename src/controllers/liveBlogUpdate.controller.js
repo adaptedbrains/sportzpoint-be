@@ -1,5 +1,5 @@
-import { Article } from "../models/article.model.js";
-import { LiveBlogUpdate } from "../models/liveBlogUpdate.model.js";
+import { Article } from "../model/articel.model.js";
+import { LiveBlogUpdate } from "../model/ liveBlogUpdate.model.js";
 
 export const addLiveBlogUpdate = async (req, res) => {
   try {
