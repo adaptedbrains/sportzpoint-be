@@ -352,6 +352,7 @@ export const getArticlesByType = async (req, res) => {
             .populate("tags", "name slug")             // Populate tags
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .populate("live_blog_updates")
             .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
             .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
             .limit(limitValue);                        // Limit the number of documents
@@ -396,6 +397,7 @@ export const getPublishedArticlesByType = async (req, res) => {
             .populate("tags", "name slug")             // Populate tags
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .populate("live_blog_updates")
             .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
             .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
             .limit(limitValue);                        // Limit the number of documents
