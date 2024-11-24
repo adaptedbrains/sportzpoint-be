@@ -313,7 +313,8 @@ export const getArticleBySlugController = async (req, res) => {
             .populate("categories", "name slug")
             .populate("tags", "name slug")
             .populate("author", "name email social_profiles profile_picture")
-            .populate("credits", "name email social_profiles profile_picture");
+            .populate("credits", "name email social_profiles profile_picture")
+            .populate("live_blog_updates"); // Populate live blog
 
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
