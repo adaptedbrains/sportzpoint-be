@@ -136,7 +136,8 @@ export const editLiveBlogUpdate = async (req, res) => {
         return res.status(400).json({ success: false, message: "Not a LiveBlog article" });
       }
   
-      res.status(200).json({ success: true, updates: article.live_blog_updates });
+      // Include the article details in the response
+      res.status(200).json({ success: true, article, updates: article.live_blog_updates });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: "Server error" });
