@@ -543,3 +543,22 @@ export const deleteArticleController = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
+
+export const updateArticleByIdController = async (req, res) => {
+    const { id } = req.params; // Get the article ID from request parameters
+    const updateData = req.body; // Get the update data from request body
+
+    try {
+        // Find the article by ID and update it with the new data
+        const article = await Article.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!article) {
+            return res.status(404).json({ message: 'Article not found' });
+        }
+
+        return res.status(200).json({ message: 'Article updated successfully', article });
+    } catch (error) {
+        console.error("Error updating article:", error.message);
+        return res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+};
