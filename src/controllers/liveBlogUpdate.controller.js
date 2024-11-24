@@ -18,11 +18,11 @@ export const addLiveBlogUpdate = async (req, res) => {
         .json({ success: false, message: "Article is not a LiveBlog type" });
     }
 
-    if (article.status !== "published") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Article must be published to add updates" });
-    }
+    // if (article.status !== "published") {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Article must be published to add updates" });
+    // }
 
     const update = await LiveBlogUpdate.create({
       post: postId,

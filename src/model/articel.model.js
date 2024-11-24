@@ -26,7 +26,7 @@ tags:[{
 }],
 live_blog_updates:[{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'LiveBlogPpdates'
+    ref: 'LiveBlogUpdate'
 }],
 author:{
     type: mongoose.Schema.Types.ObjectId,
