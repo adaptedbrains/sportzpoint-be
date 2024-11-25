@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 import { db } from "../loaders/db.loader.js";
 
 const UserSchema = new mongoose.Schema(
@@ -10,17 +11,29 @@ const UserSchema = new mongoose.Schema(
     meta_description: { type: String },
     display_order: { type: Number },
     roles: {
-        type: mongoose.Schema.Types.Array
+      type: [String], // Array of strings for roles
+      default: [], // Default to an empty array
     },
     description: { type: String },
     hide_on_website: { type: Boolean, default: false },
     social_profiles: [{ type: String }],
     profile_picture: { type: String },
+    password: { type: String, required: true }, // Add password field
   },
   {
     timestamps: true,
   }
 );
+
+// Middleware to hash password before saving
+UserSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+});
+
 
 const User = db.model("User", UserSchema, "users");
 

@@ -11,7 +11,7 @@ const initRoutes = (app) => {
     app.use("/", LiveBlogUpdateRouter);
     app.use("/auth", AuthRouter);
     app.use("/admin", AdminRouter);
-    app.use("/team", UserRouter)
+    app.use("/user", UserRouter)
     app.get("/", async (req, res) => {
         res.json({
             "message": "Welcome to Sportzpoint Developers Portal"
