@@ -293,7 +293,7 @@ export const getLatestArticles = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
-            .limit(4); // Fetch only 3 articles
+            .limit(4); // Fetch only 4 articles
 
         // Return the response
         res.status(200).json({ articles });
@@ -302,6 +302,36 @@ export const getLatestArticles = async (req, res) => {
         res.status(500).json({ message: "An error occurred while retrieving the articles", error: error.message });
     }
 };
+
+// export const getArticleBySlugController = async (req, res) => {
+//     try {
+//         const { slug } = req.params; // Get the article slug from the URL parameters
+
+//         // Find the article by slug
+//         const article = await Article.findOne({ slug })
+//             .populate("primary_category", "name slug") // Populate primary category
+//             .populate("categories", "name slug")
+//             .populate("tags", "name slug")
+//             .populate("author", "name email social_profiles profile_picture")
+//             .populate("credits", "name email social_profiles profile_picture")
+//             .populate("live_blog_updates"); // Populate live blog
+
+//         if (!article) {
+//             return res.status(404).json({ message: "Article not found" });
+//         }
+
+//         // Fetch the 5 latest articles
+//         const latestArticles = await Article.find({
+//             published_at_datetime: { $ne: null } // Ensure `published_at_datetime` is not null
+//         })
+//             .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
+//             .limit(5); // Limit to 5 articles
+
+//         res.status(200).json({ article, latestArticles });
+//     } catch (error) {
+//         res.status(500).json({ message: "An error occurred while retrieving the article", error: error.message });
+//     }
+// };
 
 export const getArticleBySlugController = async (req, res) => {
     try {
@@ -327,11 +357,21 @@ export const getArticleBySlugController = async (req, res) => {
             .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
             .limit(5); // Limit to 5 articles
 
-        res.status(200).json({ article, latestArticles });
+        // Fetch related stories based on categories
+        const relatedStories = await Article.find({
+            categories: { $in: article.categories }, // Match any of the categories
+            _id: { $ne: article._id }, // Exclude the current article
+            published_at_datetime: { $ne: null } // Ensure the article is published
+        })
+            .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
+            .limit(5); // Limit to 5 related stories
+
+        res.status(200).json({ article, latestArticles, relatedStories });
     } catch (error) {
         res.status(500).json({ message: "An error occurred while retrieving the article", error: error.message });
     }
 };
+
 
 export const getArticlesByType = async (req, res) => {
     try {
