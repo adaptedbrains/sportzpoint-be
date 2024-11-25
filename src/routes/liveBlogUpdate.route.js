@@ -6,7 +6,7 @@ import {
   pinLiveBlogUpdate,
   getLiveBlogUpdates
 } from "../controllers/liveBlogUpdate.controller.js";
-import { authenticateJWT } from "../middlewares/authenticateJWT.js";
+import { authenticateJWT } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
