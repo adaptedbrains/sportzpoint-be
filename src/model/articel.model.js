@@ -45,7 +45,8 @@ credits:[{
   seo_desc: { type: String },
   seo_title: { type: String },
   content: { type: String },
-  status: { type: String, enum: ["draft", "published", "pending_approval", ""], default: "" }
+  status: { type: String, enum: ["draft", "published", "pending_approval", ""], default: "" },
+  isLive: { type: Boolean, default: false }
 });
 
 const Article = db.model('Article', ArticleSchema, 'articles')
