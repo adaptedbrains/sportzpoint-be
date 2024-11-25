@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { publishPostController , getPendingApprovalPostsController, unpublishPostController} from '../controllers/admin.controller.js';
-import { isAdmin } from '../middleware/auth.middleware.js';
+import { isAdmin, authenticateJWT } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
