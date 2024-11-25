@@ -6,6 +6,7 @@ import {
   pinLiveBlogUpdate,
   getLiveBlogUpdates
 } from "../controllers/liveBlogUpdate.controller.js";
+import { authenticateJWT } from "../middlewares/authenticateJWT.js";
 
 const router = express.Router();
 
@@ -14,15 +15,15 @@ router.get("/post/:postId/live-blog/updates", getLiveBlogUpdates);
 
 // Add live blog update
 // all are going to be protected routes
-router.post("/posts/:postId/live-blog/update", addLiveBlogUpdate);
+router.post("/posts/:postId/live-blog/update", authenticateJWT, addLiveBlogUpdate);
 
 // Edit live blog update
-router.patch("/live-blog/update/:updateId", editLiveBlogUpdate);
+router.patch("/live-blog/update/:updateId", authenticateJWT, editLiveBlogUpdate);
 
 // Delete live blog update
-router.delete("/live-blog/update/:updateId", deleteLiveBlogUpdate);
+router.delete("/live-blog/update/:updateId", authenticateJWT, deleteLiveBlogUpdate);
 
 // Pin live blog update
-router.patch("/live-blog/update/:updateId/pin", pinLiveBlogUpdate);
+router.patch("/live-blog/update/:updateId/pin", authenticateJWT, pinLiveBlogUpdate);
 
 export default router;
