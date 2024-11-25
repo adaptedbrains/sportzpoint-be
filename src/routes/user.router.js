@@ -4,7 +4,7 @@ import { authenticateJWT, isAdmin } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getAllUsersController);
+router.get("/",authenticateJWT, getAllUsersController);
 
 // Login route
 
