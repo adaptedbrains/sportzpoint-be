@@ -30,7 +30,6 @@ export const isAdmin = (req, res, next) => {
 
 // Middleware to check user roles
 export const checkRole = (roles) => {
-  console.log("sajd: ", roles)
   return (req, res, next) => {
     if (req.user && roles.some(role => req.user.roles.includes(role))) {
       return next();
