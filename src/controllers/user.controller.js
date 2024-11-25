@@ -48,19 +48,24 @@ export const createUser = async (req, res) => {
     // Generate a random password
     const password = crypto.randomBytes(8).toString('hex');
 
+
+    // Create a unique slug from the email
+    const slug = email.replace(/@.*$/, '').replace(/\s+/g, '-').toLowerCase();
+
     // Create new user
     const newUser = new User({
       name,
       email,
       password,
       roles, // You can specify roles here when creating a user
+      slug, // Add slug to the user object
     });
 
     await newUser.save();
 
-    res.status(201).json({ message: "User created successfully", password });
+    res.status(201).json({ message: "User created successfully", password, newUser });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" , err});
   }
 };
 

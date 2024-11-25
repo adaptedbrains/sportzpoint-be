@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },
     meta_title: { type: String },
     meta_description: { type: String },
-    display_order: { type: Number, required: true },
+    display_order: { type: Number },
     roles: {
         type: mongoose.Schema.Types.Array
     },
