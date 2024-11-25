@@ -344,7 +344,10 @@ export const getArticleBySlugController = async (req, res) => {
             .populate("tags", "name slug")
             .populate("author", "name email social_profiles profile_picture")
             .populate("credits", "name email social_profiles profile_picture")
-            .populate("live_blog_updates"); // Populate live blog
+            .populate({
+                path: "live_blog_updates",
+                options: { sort: { createdAt: -1 } }, // Sort live_blog_updates by createdAt in descending order
+            })
 
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
