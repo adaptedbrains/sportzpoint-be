@@ -30,7 +30,7 @@ router.get("/posts/send-for-approval", authenticateJWT, sendForApprovalControlle
 
 router.delete("/article/:id", authenticateJWT, deleteArticleController);
 
-router.route("/article/update/:id").put(updateArticleByIdController);
+router.route("/article/update/:id").put(authenticateJWT, updateArticleByIdController);
 
 
 
