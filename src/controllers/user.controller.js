@@ -13,32 +13,42 @@ import nodemailer from "nodemailer";
 // Function to handle login
 
 export const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-  
-    try {
-      // Check if the user exists
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: "Invalid email or password" });
-      }
-  
-      // Compare the provided password with the stored hashed password
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Invalid email or password" });
-      }
+  const { email, password } = req.body;
 
-      // Create a JWT token
-      const token = jwt.sign(
-        { userId: user._id, roles: user.roles }, // Payload
-        environment.JWT_SECRET
-      );
-  
-      res.status(200).json({ message: "Login successful", token, role: user.roles });
-    } catch (err) {
-      res.status(500).json({ message: "Server error", error: err.message });
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
     }
-  };
+
+    // Compare the provided password with the stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // Create a JWT token
+    const token = jwt.sign(
+      { userId: user._id, roles: user.roles }, // Payload
+      environment.JWT_SECRET
+    );
+
+    // Send the full user data along with the token
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        roles: user.roles,
+        // Add any other user data you want to send
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 
 
 
