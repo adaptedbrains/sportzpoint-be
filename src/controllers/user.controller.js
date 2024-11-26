@@ -204,3 +204,53 @@ export const getUserProfile = async (req, res) => {
     });
   }
 };
+
+
+export const updateUser = async (req, res) => {
+  const { id } = req.params; // ID of the user to update
+  const { name, email, roles } = req.body;
+
+  try {
+    // Ensure only admins can update users
+    if (!req.user || !req.user.roles.includes("admin")) {
+      return res.status(403).json({ message: "You are not authorized to update users" });
+    }
+
+    // Find and update the user
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name, email, roles },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User updated successfully", updatedUser });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Ensure only admins can delete users
+    if (!req.user || !req.user.roles.includes("admin")) {
+      return res.status(403).json({ message: "You are not authorized to delete users" });
+    }
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User deleted successfully", deletedUser });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
