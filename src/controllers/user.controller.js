@@ -207,6 +207,53 @@ export const getArticlesByAuthor = async (req, res) => {
 };
 
 
+export const getArticlesByAuthorStatus = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { page = 1, limit = 10, status } = req.query; // Include `status` in query parameters
+
+    const skip = (page - 1) * limit; // Calculate the number of articles to skip
+
+    // Build a dynamic query object
+    const query = { author: userId };
+    if (status) {
+      query.status = status; // Add status filter if provided
+    }
+
+    const articles = await Article.find(query)
+      .populate('primary_category')
+      .populate('categories')
+      .populate('tags')
+      .populate('live_blog_updates')
+      .populate('author', 'name email')
+      .populate('credits', 'name email')
+      .skip(skip) // Skip articles based on the page number
+      .limit(parseInt(limit)) // Limit the number of articles per page
+      .exec();
+
+    // Get the total count of articles to calculate total pages
+    const totalCount = await Article.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: articles,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving articles",
+      error: error.message,
+    });
+  }
+};
+
+
 
 export const getUserProfile = async (req, res) => {
   try {
