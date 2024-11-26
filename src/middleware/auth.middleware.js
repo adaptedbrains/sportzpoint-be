@@ -31,7 +31,9 @@ export const isAdmin = (req, res, next) => {
 // Middleware to check user roles
 export const checkRole = (roles) => {
   return (req, res, next) => {
+
     if (req.user && roles.some(role => req.user.roles.includes(role))) {
+
       return next();
     }
     res.status(403).json({ message: "Forbidden: You are not authorized to access this resource" });

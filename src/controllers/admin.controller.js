@@ -25,9 +25,16 @@ export const publishPostController = async (req, res) => {
 
 export const getPendingApprovalPostsController = async (req, res) => {
     try {
-        const pendingArticles = await Article.find({ status: 'pending_approval' });
+        const { type } = req.query;
 
-        return res.status(200).json({ message: 'Pending approval articles retrieved successfully', articles: pendingArticles });
+        // Fetch draft articles by type
+        const articles = await Article.find({
+            type,
+            status: 'pending_approval'
+        });
+
+
+        return res.status(200).json({ message: 'Pending approval articles retrieved successfully', articles: articles });
     } catch (error) {
         return res.status(500).json({ message: 'An error occurred', error });
     }

@@ -12,6 +12,8 @@ router.patch("/post/live/:id", authenticateJWT, checkRole(['Admin', 'Editor']), 
 
 router.patch("/post/stop-live/:id", authenticateJWT, checkRole(['Admin', 'Editor']), stopLiveController);
 
-router.get("/posts/pending-approval", authenticateJWT, checkRole(['Admin, Editor']), getPendingApprovalPostsController);
+
+router.get("/posts/pending-approval", authenticateJWT, checkRole(['Admin', 'Editor']), getPendingApprovalPostsController);
+
 
 export default router;
