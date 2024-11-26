@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug, getLatestArticles, getArticleBySlugController, getArticlesByType, getPublishedArticlesByType, saveAsDraftController, getDraftArticlesByType, sendForApprovalController, getArticlesByCategoryAndTypeController, deleteArticleController, updateArticleByIdController } from "../controllers/article.controller.js";
+import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middleware.js';
 
 
 const router = Router();
@@ -10,24 +11,24 @@ router.route("/category/search").get(searchCategoryByNameController)
 
 router.route("/article/create").post(createArticleController)
 router.route("/article/update").put(updateArticleController)
-router.route("/article/publish").get(publishArticleController)
-router.get("/article/latest-articles", getLatestArticles);
-router.get("/articles/category/:slug", getArticlesByCategorySlug);
-router.get("/articles/tags/:slug", getArticlesByTagSlug);
-router.get("/articles/type/:type", getArticlesByType);
-router.get("/article/:id", getArticleByIdController);
-router.get("/article/slug/:slug", getArticleBySlugController);
+router.route("/article/publish").get(publishArticleController) // end user
+router.get("/article/latest-articles", getLatestArticles);  // end user
+router.get("/articles/category/:slug", getArticlesByCategorySlug); // end user
+router.get("/articles/tags/:slug", getArticlesByTagSlug); // end user
+router.get("/articles/type/:type", getArticlesByType);  // end user
+router.get("/article/:id", getArticleByIdController);  // end user
+router.get("/article/slug/:slug", getArticleBySlugController); // end user
 
 // New route to get articles by category and type
-router.get("/articles/category/:slug/type/:type", getArticlesByCategoryAndTypeController);
+router.get("/articles/category/:slug/type/:type", getArticlesByCategoryAndTypeController); // end user
 
 
-router.get("/posts/published", getPublishedArticlesByType);
-router.post("/posts/draft", saveAsDraftController);
-router.get("/posts/draft", getDraftArticlesByType);
-router.get("/posts/send-for-approval", sendForApprovalController);
+router.get("/posts/published", getPublishedArticlesByType);  // end user
+router.post("/posts/draft", authenticateJWT, saveAsDraftController); 
+router.get("/posts/draft", authenticateJWT,  getDraftArticlesByType);
+router.get("/posts/send-for-approval", authenticateJWT, sendForApprovalController);
 
-router.delete("/article/:id", deleteArticleController);
+router.delete("/article/:id", authenticateJWT, deleteArticleController);
 
 router.route("/article/update/:id").put(updateArticleByIdController);
 

@@ -468,18 +468,23 @@ export const getPublishedArticlesByType = async (req, res) => {
 
 export const saveAsDraftController = async (req, res) => {
     try {
-        const requestedData = req.body;
-        const newArticle = new Article({
-            ...requestedData,
-            status: "draft"
-        });
+      const requestedData = req.body;
 
-        const article = await newArticle.save();
-        return res.status(201).json({ message: 'Article saved as draft successfully', article: newArticle });
+  
+      // Add the authenticated user's ID as the author
+      const newArticle = new Article({
+        ...requestedData,
+        author: req.user.userId, // Assuming `id` is the user's identifier
+        status: "draft",
+      });
+  
+      const article = await newArticle.save();
+      return res.status(201).json({ message: 'Article saved as draft successfully', article });
     } catch (error) {
-        return res.status(500).json({ message: 'An error occurred', error });
+      return res.status(500).json({ message: 'An error occurred', error });
     }
-};
+  };
+  
 
 export const getDraftArticlesByType = async (req, res) => {
     try {
