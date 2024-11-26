@@ -8,7 +8,7 @@ import {
 } from "../controllers/liveBlogUpdate.controller.js";
 import { authenticateJWT } from "../middleware/auth.middleware.js";
 import { getMediaFileNames } from "../controllers/media.controller.js";
-import { getArticlesByAuthor } from "../controllers/user.controller.js"
+import { getArticlesByAuthor, getUserProfile } from "../controllers/user.controller.js"
 
 const router = express.Router();
 
@@ -32,5 +32,7 @@ router.patch("/live-blog/update/:updateId/pin", authenticateJWT, pinLiveBlogUpda
 // Route to fetch media file names
 router.get("/media",authenticateJWT,  getMediaFileNames);
 router.get('/my-posts', authenticateJWT, getArticlesByAuthor);
+
+router.get("/user/:id", getUserProfile);
 
 export default router;
