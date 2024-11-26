@@ -29,7 +29,7 @@ export const loginUser = async (req, res) => {
         environment.JWT_SECRET
       );
   
-      res.status(200).json({ message: "Login successful", token });
+      res.status(200).json({ message: "Login successful", token, role: user.roles });
     } catch (err) {
       res.status(500).json({ message: "Server error", error: err.message });
     }
