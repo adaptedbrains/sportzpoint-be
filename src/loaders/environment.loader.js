@@ -9,5 +9,9 @@ export const environment = {
     AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
     AWS_SECRET_KEY: process.env.AWS_SECRET_KEY,
     AWS_REGION: process.env.AWS_REGION,
-    AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME
+    AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PORT: process.env.SMTP_PORT,
+    SMTP_USER: process.env.SMTP_USER,
+    SMTP_PASSWORD: process.env.SMTP_PASSWORD
 }
