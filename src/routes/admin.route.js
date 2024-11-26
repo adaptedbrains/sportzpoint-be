@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { publishPostController, getPendingApprovalPostsController, unpublishPostController, goLiveController, stopLiveController } from '../controllers/admin.controller.js';
+import { publishPostController, unpublishPostController, goLiveController, stopLiveController } from '../controllers/admin.controller.js';
 import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -13,7 +13,6 @@ router.patch("/post/live/:id", authenticateJWT, checkRole(['Admin', 'Editor']), 
 router.patch("/post/stop-live/:id", authenticateJWT, checkRole(['Admin', 'Editor']), stopLiveController);
 
 
-router.get("/posts/pending-approval", authenticateJWT, checkRole(['Admin', 'Editor']), getPendingApprovalPostsController);
 
 
 export default router;

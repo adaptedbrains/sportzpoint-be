@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug, getLatestArticles, getArticleBySlugController, getArticlesByType, getPublishedArticlesByType, saveAsDraftController, getDraftArticlesByType, sendForApprovalController, getArticlesByCategoryAndTypeController, deleteArticleController, updateArticleByIdController } from "../controllers/article.controller.js";
 import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middleware.js';
+import { getPendingApprovalPostsController } from "../controllers/admin.controller.js"
 
 
 const router = Router();
@@ -27,6 +28,7 @@ router.get("/posts/published", getPublishedArticlesByType);  // end user
 router.post("/posts/draft", authenticateJWT, saveAsDraftController); 
 router.get("/posts/draft", authenticateJWT,  getDraftArticlesByType);
 router.get("/posts/send-for-approval", authenticateJWT, sendForApprovalController);
+router.get("/posts/pending-approval", authenticateJWT, checkRole(['Admin', 'Editor']), getPendingApprovalPostsController);
 
 router.delete("/article/:id", authenticateJWT, deleteArticleController);
 
