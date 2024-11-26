@@ -156,32 +156,46 @@ export const getAllUsersController = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
-
 export const getArticlesByAuthor = async (req, res) => {
-    try {
-        const userId = req.user._id;
+  try {
+      const userId = req.user._id;
+      const { page = 1, limit = 10 } = req.query;  // Default to page 1 and limit 10
 
-        const articles = await Article.find({ author: userId })
-            .populate('primary_category')
-            .populate('categories')
-            .populate('tags')
-            .populate('live_blog_updates')
-            .populate('author', 'name email') // Populate author details if needed
-            .populate('credits', 'name email') // Populate credits details if needed
-            .exec();
+      const skip = (page - 1) * limit;  // Calculate the number of articles to skip
 
-        res.status(200).json({
-            success: true,
-            data: articles,
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Error retrieving articles",
-            error: error.message,
-        });
-    }
+      const articles = await Article.find({ author: userId })
+          .populate('primary_category')
+          .populate('categories')
+          .populate('tags')
+          .populate('live_blog_updates')
+          .populate('author', 'name email')
+          .populate('credits', 'name email')
+          .skip(skip)  // Skip articles based on the page number
+          .limit(parseInt(limit))  // Limit the number of articles per page
+          .exec();
+
+      // Get the total count of articles to calculate total pages
+      const totalCount = await Article.countDocuments({ author: userId });
+
+      res.status(200).json({
+          success: true,
+          data: articles,
+          pagination: {
+              page: parseInt(page),
+              limit: parseInt(limit),
+              totalCount,
+              totalPages: Math.ceil(totalCount / limit),
+          },
+      });
+  } catch (error) {
+      res.status(500).json({
+          success: false,
+          message: "Error retrieving articles",
+          error: error.message,
+      });
+  }
 };
+
 
 
 export const getUserProfile = async (req, res) => {
