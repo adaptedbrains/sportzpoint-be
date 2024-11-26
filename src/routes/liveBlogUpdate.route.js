@@ -7,10 +7,14 @@ import {
   getLiveBlogUpdates
 } from "../controllers/liveBlogUpdate.controller.js";
 import { authenticateJWT } from "../middleware/auth.middleware.js";
-import { getMediaFileNames } from "../controllers/media.controller.js";
+import { getMediaFileNames, uploadMediaFile } from "../controllers/media.controller.js";
 import { getArticlesByAuthor, getUserProfile } from "../controllers/user.controller.js"
+import multer from "multer";
 
 const router = express.Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // public route 
 router.get("/post/:postId/live-blog/updates", getLiveBlogUpdates);
@@ -34,5 +38,6 @@ router.get("/media",authenticateJWT,  getMediaFileNames);
 router.get('/my-posts', authenticateJWT, getArticlesByAuthor);
 
 router.get("/user/:id", getUserProfile);
+router.post("/media/upload", upload.single("file"), authenticateJWT, uploadMediaFile);
 
 export default router;
