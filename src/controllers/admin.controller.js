@@ -25,20 +25,44 @@ export const publishPostController = async (req, res) => {
 
 export const getPendingApprovalPostsController = async (req, res) => {
     try {
-        const { type } = req.query;
+        const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query parameters
 
-        // Fetch draft articles by type
-        const articles = await Article.find({
-            type,
-            status: 'pending_approval'
+        const query = { status: 'pending_approval' }; // Base query for pending approval posts
+
+        // Add type filter if provided
+        if (type) {
+            query.type = type;
+        }
+
+        const skip = (page - 1) * limit; // Calculate how many articles to skip for pagination
+
+        // Fetch articles based on the query
+        const articles = await Article.find(query)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .exec();
+
+        // Get total count of matching articles for pagination metadata
+        const totalCount = await Article.countDocuments(query);
+
+        return res.status(200).json({
+            articles,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+            },
         });
-
-
-        return res.status(200).json({ message: 'Pending approval articles retrieved successfully', articles: articles });
     } catch (error) {
-        return res.status(500).json({ message: 'An error occurred', error });
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching pending approval posts',
+            error: error.message, // Include error message for debugging
+        });
     }
 };
+
 
 export const unpublishPostController = async (req, res) => {
     try {

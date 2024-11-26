@@ -479,28 +479,53 @@ export const saveAsDraftController = async (req, res) => {
       });
   
       const article = await newArticle.save();
-      return res.status(201).json({ message: 'Article saved as draft successfully', article });
+      return res.status(201).json({ article });
     } catch (error) {
       return res.status(500).json({ message: 'An error occurred', error });
     }
   };
   
 
-export const getDraftArticlesByType = async (req, res) => {
+  export const getDraftArticlesByType = async (req, res) => {
     try {
-        const { type } = req.query;
+        const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query parameters
 
-        // Fetch draft articles by type
-        const articles = await Article.find({
-            type,
-            status: 'draft'
+        const query = { status: 'draft' }; // Base query for draft articles
+
+        // Add type filter if provided
+        if (type) {
+            query.type = type;
+        }
+
+        const skip = (page - 1) * limit; // Calculate how many articles to skip for pagination
+
+        // Fetch draft articles based on the query
+        const articles = await Article.find(query)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .exec();
+
+        // Get total count of matching articles for pagination metadata
+        const totalCount = await Article.countDocuments(query);
+
+        return res.status(200).json({
+            articles,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+            },
         });
-
-        return res.status(200).json({ articles });
     } catch (error) {
-        return res.status(500).json({ message: 'An error occurred', error });
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching draft articles',
+            error: error.message,
+        });
     }
 };
+
 
 export const sendForApprovalController = async (req, res) => {
     try {
@@ -515,7 +540,7 @@ export const sendForApprovalController = async (req, res) => {
         article.status = 'pending_approval'; // Update the status to 'pending_approval'
         await article.save();
 
-        return res.status(200).json({ message: 'Article sent for approval successfully', article });
+        return res.status(200).json({ article });
     } catch (error) {
         return res.status(500).json({ message: 'An error occurred', error });
     }
