@@ -29,6 +29,6 @@ router.patch("/live-blog/update/:updateId/pin", authenticateJWT, pinLiveBlogUpda
 
 
 // Route to fetch media file names
-router.get("/media-names",authenticateJWT,  getMediaFileNames);
+router.get("/media",authenticateJWT,  getMediaFileNames);
 
 export default router;
