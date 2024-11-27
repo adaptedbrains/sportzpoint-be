@@ -12,6 +12,7 @@ router.route("/category/search").get(searchCategoryByNameController)
 
 router.route("/article/create").post(createArticleController)
 router.route("/article/update").put(updateArticleController)
+router.route("/article/delete").put(deleteArticleController)
 router.route("/article/publish").get(publishArticleController) // end user
 router.get("/article/latest-articles", getLatestArticles);  // end user
 router.get("/articles/category/:slug", getArticlesByCategorySlug); // end user

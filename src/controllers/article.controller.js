@@ -7,6 +7,9 @@ import mongoose from "mongoose";
 
 export const createArticleController = async (req, res, next) => {
   const requestedData = req.body;
+    
+  
+
   try {
     const newArticle = new Article({
       ...requestedData,
@@ -81,6 +84,8 @@ export const searchCategoryByNameController = async (req, res, next) => {
 export const updateArticleController = async (req, res) => {
     try {
         const { id } = req.params; 
+       
+        
         const updateData = req.body; 
 
         const updatedArticle = await ArticleModel.updateArticle(id, updateData);
@@ -601,7 +606,8 @@ export const getArticlesByCategoryAndTypeController = async (req, res) => {
 
 export const deleteArticleController = async (req, res) => {
     const { id } = req.params;
-
+        
+        
     try {
         // Find the article by its ID and delete it
         const article = await Article.findByIdAndDelete(id);
@@ -609,7 +615,8 @@ export const deleteArticleController = async (req, res) => {
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
         }
-
+        console.log("hello");
+        
         res.status(200).json({ message: "Article deleted successfully" });
     } catch (error) {
         console.error("Error deleting article:", error.message);
