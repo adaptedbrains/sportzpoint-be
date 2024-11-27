@@ -330,3 +330,69 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
+
+
+// // Set up nodemailer transport for Zoho Mail
+// const transporter = nodemailer.createTransport({
+//   service: 'Zoho', // Use Zoho's service
+//   auth: {
+//     user: environment.SMTP_USER, // Your Zoho email address
+//     pass: environment.SMTP_PASSWORD, // Your Zoho email password or app-specific password
+//   },
+// });
+
+const transporter = nodemailer.createTransport({
+  host: environment.SMTP_HOST, // "smtp.zoho.com"
+  port: environment.SMTP_PORT, // 465 or 587
+  secure: false, // true for 465, false for 587
+  auth: {
+    user: environment.SMTP_USER, // Your Zoho email address
+    pass: environment.SMTP_PASSWORD, // Your Zoho app-specific password
+  },
+});
+
+// Forgot Password Controller - Request reset
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body; // Get email from the request body
+  
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate a reset token (using crypto for security)
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Store the reset token and set an expiration time (1 hour in this case)
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpire = Date.now() + 3600000; // Token expires in 1 hour
+    await user.save();
+
+    // Create the password reset URL (ensure CLIENT_URL is your front-end URL)
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    // Send email with the reset link
+    const mailOptions = {
+      from: environment.SMTP_USER, // The "from" address is your Zoho email
+      to: email,
+      subject: "Password Reset Request",
+      text: `You requested a password reset. Click the link to reset your password: ${resetUrl}`,
+    };
+
+
+    // Send the email
+    const hey= await transporter.sendMail(mailOptions);
+
+    console.log("jhreh: ", hey);
+
+    res.status(200).json({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error sending password reset email" });
+  }
+};
