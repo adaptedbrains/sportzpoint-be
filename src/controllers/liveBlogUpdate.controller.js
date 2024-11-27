@@ -143,4 +143,25 @@ export const editLiveBlogUpdate = async (req, res) => {
       res.status(500).json({ success: false, message: "Server error" });
     }
   };
+
   
+  export const getLiveBlogsController = async (req, res) => {
+    try {
+      // Find articles where `isLive` is true and `status` is "live"
+      const liveBlogs = await Article.find({ isLive: true})
+        .select("title slug updated_at_datetime isLive status") // Select only necessary fields
+        .populate("primary_category categories tags live_blog_updates") // Populate referenced fields if needed
+        .sort({ updated_at_datetime: -1 }); // Sort by latest update, adjust if necessary
+  
+      // Check if any live blogs are found
+      if (liveBlogs.length === 0) {
+        return res.status(404).json({ message: "No ongoing live blogs found" });
+      }
+  
+      // Return the list of ongoing live blogs
+      res.status(200).json({ message: "Ongoing live blogs fetched successfully", liveBlogs });
+    } catch (error) {
+      console.error("Error fetching live blogs:", error);
+      res.status(500).json({ message: "An error occurred while fetching live blogs", error: error.message });
+    }
+  };

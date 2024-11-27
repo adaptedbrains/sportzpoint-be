@@ -4,7 +4,8 @@ import {
   editLiveBlogUpdate,
   deleteLiveBlogUpdate,
   pinLiveBlogUpdate,
-  getLiveBlogUpdates
+  getLiveBlogUpdates,
+  getLiveBlogsController
 } from "../controllers/liveBlogUpdate.controller.js";
 import { authenticateJWT } from "../middleware/auth.middleware.js";
 import { getMediaFileNames, uploadMediaFile, getImageFileNames } from "../controllers/media.controller.js";
@@ -38,6 +39,7 @@ router.get("/media",authenticateJWT,  getMediaFileNames);
 router.get('/my-posts', authenticateJWT, getArticlesByAuthor);
 router.get('/my-posts', authenticateJWT, getArticlesByAuthorStatus);
 router.get("/media/img", authenticateJWT, getImageFileNames);
+router.route("/liveblogs").get(getLiveBlogsController);
 
 router.get("/user/:id", getUserProfile);
 router.post("/media/upload", upload.single("file"), authenticateJWT, uploadMediaFile);
