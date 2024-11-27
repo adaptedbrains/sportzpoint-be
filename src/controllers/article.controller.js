@@ -80,21 +80,33 @@ export const searchCategoryByNameController = async (req, res, next) => {
 
 export const updateArticleController = async (req, res) => {
     try {
-        const { id } = req.params; 
-        const updateData = req.body; 
+      const { id } = req.params;
+      const updateData = req.body;
+  
+  
 
-        const updatedArticle = await ArticleModel.updateArticle(id, updateData);
-
-        if (!updatedArticle) {
-            return res.status(404).json({ message: "Article not found" });
-        }
-
-        res.status(200).json({ message: "Article updated successfully", article: updatedArticle });
+      // Validate the update data
+      if (!updateData || Object.keys(updateData).length === 0) {
+        return res.status(400).json({ message: "Update data is required" });
+      }
+  
+      // Update the article and return the updated data
+      const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
+        new: true, // Return the updated document
+        runValidators: true, // Run validation on update
+      });
+  
+      // Check if the article was found and updated
+      if (!updatedArticle) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+  
+      res.status(200).json({  article: updatedArticle });
     } catch (error) {
-        res.status(500).json({ message: "An error occurred while updating the article", error: error.message });
+      console.error("Error updating article:", error);
+      res.status(500).json({ message: "An error occurred while updating the article", error: error.message });
     }
-};
-
+  };
 
 export const publishArticleController = async (req, res) => {
     try {
