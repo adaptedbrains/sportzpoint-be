@@ -506,6 +506,8 @@ export const saveAsDraftController = async (req, res) => {
         ...requestedData,
         author: req.user.userId, // Assuming `id` is the user's identifier
         status: "draft",
+        published_at_datetime: null
+
       });
   
       const article = await newArticle.save();
