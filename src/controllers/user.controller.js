@@ -13,9 +13,8 @@ import nodemailer from "nodemailer";
 // Function to handle login
 
 export const loginUser = async (req, res) => {
-
   const { email, password } = req.body;
-  
+
   try {
     // Check if the user exists
     const user = await User.findOne({ email });
@@ -24,9 +23,11 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
+
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("saj: ", isMatch);
+    console.log("Password comparison result:", isMatch); // Debugging
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -45,7 +46,6 @@ export const loginUser = async (req, res) => {
         id: user._id,
         email: user.email,
         roles: user.roles,
-        // Add any other user data you want to send
       },
     });
   } catch (err) {
@@ -364,12 +364,14 @@ const resetPassword = async (req, res) => {
     // Hash the new password before saving it
 
     user.password = password;
+    console.log("pas: ", password)
 
     // Clear the reset token and expiration fields after password reset
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
 
     await user.save();
+
 
     res.status(200).json({ message: "Password has been reset successfully" });
   } catch (error) {

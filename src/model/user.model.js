@@ -29,10 +29,11 @@ const UserSchema = new mongoose.Schema(
 
 // Middleware to hash password before saving
 UserSchema.pre("save", async function (next) {
-
   if (this.isModified("password")) {
     const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    console.log("Hashed Password:", hashedPassword); // Debugging
+    this.password = hashedPassword;
   }
   next();
 });
