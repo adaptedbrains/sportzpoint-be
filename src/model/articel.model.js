@@ -41,6 +41,7 @@ credits:[{
   custom_published_at: { type: Date },
   banner_image: { type: String },
   banner_desc: { type: String },
+  img_alt: { type: String },
   hide_banner_image: { type: Boolean, default: false },
   seo_desc: { type: String },
   seo_title: { type: String },
