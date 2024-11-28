@@ -254,7 +254,7 @@ const sourceData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
 const migrateLiveBlogUpdatesForSinglePost = async () => {
   try {
-    console.log("hey");
+
     const postIdToMigrate = 7360616;  // Specify the post_id for the new data
 
     console.log("Starting migration for post_id:", postIdToMigrate);

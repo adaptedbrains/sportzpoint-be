@@ -13,17 +13,20 @@ import nodemailer from "nodemailer";
 // Function to handle login
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
 
+  const { email, password } = req.body;
+  
   try {
     // Check if the user exists
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("saj: ", isMatch);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -334,65 +337,102 @@ export const deleteUser = async (req, res) => {
 
 
 
-// // Set up nodemailer transport for Zoho Mail
-// const transporter = nodemailer.createTransport({
-//   service: 'Zoho', // Use Zoho's service
-//   auth: {
-//     user: environment.SMTP_USER, // Your Zoho email address
-//     pass: environment.SMTP_PASSWORD, // Your Zoho email password or app-specific password
-//   },
-// });
+// doing some work here..
 
-const transporter = nodemailer.createTransport({
-  host: environment.SMTP_HOST, // "smtp.zoho.com"
-  port: environment.SMTP_PORT, // 465 or 587
-  secure: false, // true for 465, false for 587
-  auth: {
-    user: environment.SMTP_USER, // Your Zoho email address
-    pass: environment.SMTP_PASSWORD, // Your Zoho app-specific password
-  },
+
+export const sendEmail = async ({ to, subject, text }) => {
+  const transporter = nodemailer.createTransport({
+    host: environment.SMTP_HOST,
+    port: environment.SMTP_PORT,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: environment.SMTP_USER,
+        pass: environment.SMTP_PASS
+    }
 });
 
-// Forgot Password Controller - Request reset
-export const forgotPassword = async (req, res) => {
-  const { email } = req.body; // Get email from the request body
-  
+  await transporter.sendMail({
+    from: `"sportzpoint" <${environment.SMTP_USER}>`,
+    to,
+    subject,
+    text,
+  });
+
+
+};
+
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
   try {
-    // Find the user by email
     const user = await User.findOne({ email });
-    
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
-    // Generate a reset token (using crypto for security)
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate a reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const resetPasswordExpire = Date.now() + 30 * 60 * 1000; // Token expires in 30 minutes
 
-    // Store the reset token and set an expiration time (1 hour in this case)
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpire = Date.now() + 3600000; // Token expires in 1 hour
+
+    user.resetPasswordToken = resetPasswordToken;
+    user.resetPasswordExpire = resetPasswordExpire;
     await user.save();
 
-    // Create the password reset URL (ensure CLIENT_URL is your front-end URL)
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-
-    // Send email with the reset link
-    const mailOptions = {
-      from: environment.SMTP_USER, // The "from" address is your Zoho email
+    // Send the email
+    const resetUrl = `${environment.WEB_LINK}/reset-password/${resetToken}`;
+    const aw= await sendEmail({
       to: email,
       subject: "Password Reset Request",
-      text: `You requested a password reset. Click the link to reset your password: ${resetUrl}`,
-    };
-
-
-    // Send the email
-    const hey= await transporter.sendMail(mailOptions);
-
-    console.log("jhreh: ", hey);
-
-    res.status(200).json({ message: "Password reset email sent" });
+      text: `You requested a password reset. Please go to the following link to reset your password: ${resetUrl}`
+    });
+    res.status(200).json({ message: "Password reset link sent to your email" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error sending password reset email" });
+    res.status(500).json({ message: "Server error", error });
   }
 };
+
+
+
+const resetPassword = async (req, res) => {
+
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    // Hash the token to match the one stored in the database
+    const resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find user with the matching reset password token and non-expired token
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() } // Ensure token is not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Hash the new password before saving it
+
+    user.password = password;
+
+    // Clear the reset token and expiration fields after password reset
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+
+
+
+export { forgotPassword, resetPassword };
+

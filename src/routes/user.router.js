@@ -1,5 +1,5 @@
 import express from "express";
-import { loginUser, createUser, getAllUsersController, deleteUser, updateUser, forgotPassword } from "../controllers/user.controller.js";
+import { loginUser, createUser, getAllUsersController, deleteUser, updateUser, forgotPassword, resetPassword } from "../controllers/user.controller.js";
 import { authenticateJWT, isAdmin } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.get("/",authenticateJWT, getAllUsersController);
 
 router.post("/login", loginUser);
 router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 // Route to create a new user (admin only)
 router.post("/team-members/create", authenticateJWT, isAdmin, createUser);
