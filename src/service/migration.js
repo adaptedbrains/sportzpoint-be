@@ -252,74 +252,162 @@ const sourceData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 // Call the function to update sl
 
 
-const migrateLiveBlogUpdatesForSinglePost = async () => {
+// const migrateLiveBlogUpdatesForSinglePost = async () => {
+//   try {
+
+//     const postIdToMigrate = 7360616;  // Specify the post_id for the new data
+
+//     console.log("Starting migration for post_id:", postIdToMigrate);
+
+//     // Find the post with the specific post_id
+//     const data = sourceData.find(item => JSON.parse(item.post_json).post_id === postIdToMigrate);
+
+//     if (!data) {
+//       console.log(`No data found for post_id: ${postIdToMigrate}`);
+//       return;
+//     }
+
+//     const post = JSON.parse(data.post_json);
+
+//     if (post.type === "LiveBlog") {
+//       const article = await Article.findOne({ post_id: post.post_id });
+
+//       if (!article) {
+//         console.log(`Article not found for post_id: ${post.post_id}`);
+//         return;
+//       }
+
+//       // Skip if live_blog_updates are already migrated
+//       if (article.live_blog_updates && article.live_blog_updates.length > 0) {
+//         console.log(`Live blog updates already migrated for post_id: ${post.post_id}`);
+//         return;
+//       }
+
+//       if (!Array.isArray(post.live_blog_updates)) {
+//         console.warn(`Skipping post with invalid live_blog_updates for post_id: ${post.post_id}`);
+//         return;
+//       }
+
+//       const liveBlogUpdateIds = [];
+//       for (const update of post.live_blog_updates) {
+//         const newLiveBlogUpdate = new LiveBlogUpdate({
+//           post: article._id,
+//           content: update.content,
+//           title: update.title,
+//           created_at: update.created_at,
+//           updated_at: update.updated_at,
+//         });
+
+//         const savedUpdate = await newLiveBlogUpdate.save();
+//         liveBlogUpdateIds.push(savedUpdate._id);
+//       }
+
+//       article.live_blog_updates = liveBlogUpdateIds;
+//       await article.save();
+
+//       console.log(`Migrated LiveBlog updates for Article ID: ${article._id}`);
+//     }
+//   } catch (error) {
+//     console.error("Error during migration:", error);
+//   }
+// };
+
+
+
+// async function updateAllWebStoryArticles() {
+//   try {
+//     // Step 1: Find all articles with the type "Web Story"
+//     console.log ("jcbhdsh:")
+//     const articles = await Article.find({ type: 'Web Story' });
+
+//     if (articles.length === 0) {
+//       console.log('No Web Story articles found');
+//       return;
+//     }
+
+//     // Step 2: Iterate through each article and update its content
+//     for (const article of articles) {
+//       // Step 3: Parse the existing content
+//       const parsedContent = JSON.parse(article.content);
+
+
+//       // Step 4: Modify the structure
+//       // const newStructure = {
+//       //   data: {
+//       //     gallery: [], // Optional empty array for future use
+//       //     web_story: parsedContent.data.web_story.map(item => ({
+//       //       type: item.type.toLowerCase(),
+//       //       cta_link: item.cta_link || "",
+//       //       cta_text: item.cta_text || "",
+//       //       title: item.title || "",
+//       //       img_src: item.img_src || "",
+//       //       desc: item.desc || ""
+//       //     }))
+//       //   }
+//       // };
+
+//       // Step 5: Update the article's content
+//       article.content = parsedContent;
+
+//       // const as = JSON.stringify(parsedContent);
+//       // console.log ("ad:", as)
+//       // Step 6: Save the updated article
+//       await article.save();
+//       console.log(`Article with id ${article._id} updated successfully`);
+//     }
+
+//     console.log('All Web Story articles updated successfully');
+//   } catch (error) {
+//     console.error('Error updating Web Story articles:', error);
+//   }
+// }
+
+
+async function updateAllWebStoryArticles() {
   try {
+    console.log("Starting migration for Web Story articles...");
+    const articles = await Article.find({ type: 'Web Story' });
 
-    const postIdToMigrate = 7360616;  // Specify the post_id for the new data
-
-    console.log("Starting migration for post_id:", postIdToMigrate);
-
-    // Find the post with the specific post_id
-    const data = sourceData.find(item => JSON.parse(item.post_json).post_id === postIdToMigrate);
-
-    if (!data) {
-      console.log(`No data found for post_id: ${postIdToMigrate}`);
+    if (articles.length === 0) {
+      console.log('No Web Story articles found');
       return;
     }
 
-    const post = JSON.parse(data.post_json);
+    for (const article of articles) {
+      try {
+        const parsedContent = JSON.parse(article.content);
 
-    if (post.type === "LiveBlog") {
-      const article = await Article.findOne({ post_id: post.post_id });
+        // Ensure parsedContent has the correct structure
+        const webStoryData = parsedContent?.data?.web_story || [];
 
-      if (!article) {
-        console.log(`Article not found for post_id: ${post.post_id}`);
-        return;
+        // Transforming web_story data to match the schema
+        const newWebStoryData = webStoryData.map(item => ({
+          type: item.type.toLowerCase(),
+          cta_link: item.cta_link || "",
+          cta_text: item.cta_text || "",
+          title: item.title || "",
+          img_src: item.img_src || "",
+          desc: item.desc || ""
+        }));
+
+        // Update the web_story field
+        article.web_story = newWebStoryData;
+
+        // Save the updated article
+        await article.save();
+        console.log(`Article with id ${article._id} updated successfully`);
+      } catch (err) {
+        console.error(`Error updating article with id ${article._id}:`, err);
       }
-
-      // Skip if live_blog_updates are already migrated
-      if (article.live_blog_updates && article.live_blog_updates.length > 0) {
-        console.log(`Live blog updates already migrated for post_id: ${post.post_id}`);
-        return;
-      }
-
-      if (!Array.isArray(post.live_blog_updates)) {
-        console.warn(`Skipping post with invalid live_blog_updates for post_id: ${post.post_id}`);
-        return;
-      }
-
-      const liveBlogUpdateIds = [];
-      for (const update of post.live_blog_updates) {
-        const newLiveBlogUpdate = new LiveBlogUpdate({
-          post: article._id,
-          content: update.content,
-          title: update.title,
-          created_at: update.created_at,
-          updated_at: update.updated_at,
-        });
-
-        const savedUpdate = await newLiveBlogUpdate.save();
-        liveBlogUpdateIds.push(savedUpdate._id);
-      }
-
-      article.live_blog_updates = liveBlogUpdateIds;
-      await article.save();
-
-      console.log(`Migrated LiveBlog updates for Article ID: ${article._id}`);
     }
+
+    console.log('All Web Story articles updated successfully');
   } catch (error) {
-    console.error("Error during migration:", error);
+    console.error('Error updating Web Story articles:', error);
   }
-};
+}
 
+export { updateAllWebStoryArticles };
 
-
-
-
-
-
-export {
-  // migrateLiveBlogUpdatesForSinglePost
-};
 
 

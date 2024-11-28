@@ -47,7 +47,15 @@ credits:[{
   content: { type: String },
   status: { type: String, enum: ["draft", "published", "pending_approval", ""], default: "" },
   isLive: { type: Boolean, default: false },
-  focusKeyphrase: { type: String}
+  focusKeyphrase: { type: String},
+  web_story: [{
+    type: { type: String, default:'' },
+    cta_link: { type: String, default:'' },
+    cta_text: { type: String, default:'' },
+    title: { type: String, default:'' },
+    img_src: { type: String, default:'' },
+    desc: { type: String, default:'' }
+  }]
 });
 
 const Article = db.model('Article', ArticleSchema, 'articles')

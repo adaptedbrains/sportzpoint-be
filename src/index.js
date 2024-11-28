@@ -8,6 +8,7 @@ import { environment } from "./loaders/environment.loader.js"
 
 
 
+
 const { ValidationError } = Joi;
 const app = express()
 app.use(cors())
