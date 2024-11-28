@@ -64,3 +64,27 @@ const getPaginationParams = (req) => {
     }
   };
   
+
+  export const searchArticlesByTitle = async (req, res) => {
+    const { title } = req.query;
+  
+    if (!title) {
+      return res.status(400).json({ message: 'Title query parameter is required' });
+    }
+  
+    try {
+      // Case-insensitive search using regex
+      const articles = await Article.find({
+        title: { $regex: title, $options: 'i' }
+      });
+  
+      if (articles.length === 0) {
+        return res.status(404).json({ message: 'No articles found' });
+      }
+  
+      res.status(200).json(articles);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+  };
+  
