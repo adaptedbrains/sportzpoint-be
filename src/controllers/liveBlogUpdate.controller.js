@@ -120,29 +120,33 @@ export const editLiveBlogUpdate = async (req, res) => {
   };
   
 
-export const getLiveBlogUpdates = async (req, res) => {
-  try {
-    const { postId } = req.params;
-
-    const article = await Article.findById(postId)
-      .populate("live_blog_updates")
-      .exec();
-
-    if (!article) {
-      return res.status(404).json({ success: false, message: "Article not found" });
+  export const getLiveBlogUpdates = async (req, res) => {
+    try {
+      const { postId } = req.params;
+  
+      const article = await Article.findById(postId)
+        .populate({
+          path: "live_blog_updates",
+          options: { sort: { createdAt: -1 } }, // Sort by 'createdAt' descending
+        })
+        .exec();
+  
+      if (!article) {
+        return res.status(404).json({ success: false, message: "Article not found" });
+      }
+  
+      if (article.type !== "LiveBlog") {
+        return res.status(400).json({ success: false, message: "Not a LiveBlog article" });
+      }
+  
+      // Return only live_blog_updates data
+      res.status(200).json({ updates: article.live_blog_updates });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: "Server error" });
     }
-
-    if (article.type !== "LiveBlog") {
-      return res.status(400).json({ success: false, message: "Not a LiveBlog article" });
-    }
-
-    // Return only live_blog_updates data
-    res.status(200).json({ updates: article.live_blog_updates });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
+  };
+  
 
   
   export const getLiveBlogsController = async (req, res) => {
