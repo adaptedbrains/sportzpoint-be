@@ -238,9 +238,9 @@ export const updateUser = async (req, res) => {
 
   try {
     // Ensure only admins can update users
-    if (!req.user || !req.user.roles.includes("admin")) {
-      return res.status(403).json({ message: "You are not authorized to update users" });
-    }
+    // if (!req.user || !req.user.roles.includes("admin")) {
+    //   return res.status(403).json({ message: "You are not authorized to update users" });
+    // }
 
     // Find and update the user
     const updatedUser = await User.findByIdAndUpdate(
@@ -376,6 +376,51 @@ const resetPassword = async (req, res) => {
     res.status(200).json({ message: "Password has been reset successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+// Fetch a specific user's data by ID
+export const getUserProfileController = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).select("-password"); // exclude password field
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user", error: error.message });
+  }
+};
+
+// Update the logged-in user's profile
+export const updateUserProfileController = async (req, res) => {
+  try {
+    const userId = req.user.id; // retrieved from the JWT payload
+    const { name, email, password } = req.body;
+
+    // Find user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields (only those provided)
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (password) {
+      // hash the password if updated (using bcrypt or another hashing library)
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    // Save updated user
+    await user.save();
+
+    res.json({ message: "Profile updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating profile", error: error.message });
   }
 };
 

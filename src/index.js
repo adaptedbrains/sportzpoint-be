@@ -4,7 +4,7 @@ import compression from "compression"
 import Joi from "joi"
 import { initRoutes } from "./routes/index.js"
 import { environment } from "./loaders/environment.loader.js"
-
+import { addDummyPasswordToUsers } from "./service/migration.js"
 
 
 
@@ -20,7 +20,7 @@ app.use(
     })
 )
 initRoutes(app)
-
+// addDummyPasswordToUsers()
 
 // Express error handler
 app.use((err, req, res, next) => {

@@ -7,6 +7,7 @@ import { Category } from "../model/category.model.js";
 import { Tag } from "../model/tag.model.js";
 import { User } from "../model/user.model.js";
 import { LiveBlogUpdate } from "../model/ liveBlogUpdate.model.js";
+import bcrypt from "bcrypt";
 
 
 import fs from 'fs';
@@ -363,51 +364,86 @@ const sourceData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 // }
 
 
-async function updateAllWebStoryArticles() {
+// async function updateAllWebStoryArticles() {
+//   try {
+//     console.log("Starting migration for Web Story articles...");
+//     const articles = await Article.find({ type: 'Web Story' });
+
+//     if (articles.length === 0) {
+//       console.log('No Web Story articles found');
+//       return;
+//     }
+
+//     for (const article of articles) {
+//       try {
+//         const parsedContent = JSON.parse(article.content);
+
+//         // Ensure parsedContent has the correct structure
+//         const webStoryData = parsedContent?.data?.web_story || [];
+
+//         // Transforming web_story data to match the schema
+//         const newWebStoryData = webStoryData.map(item => ({
+//           type: item.type.toLowerCase(),
+//           cta_link: item.cta_link || "",
+//           cta_text: item.cta_text || "",
+//           title: item.title || "",
+//           img_src: item.img_src || "",
+//           desc: item.desc || ""
+//         }));
+
+//         // Update the web_story field
+//         article.web_story = newWebStoryData;
+
+//         // Save the updated article
+//         await article.save();
+//         console.log(`Article with id ${article._id} updated successfully`);
+//       } catch (err) {
+//         console.error(`Error updating article with id ${article._id}:`, err);
+//       }
+//     }
+
+//     console.log('All Web Story articles updated successfully');
+//   } catch (error) {
+//     console.error('Error updating Web Story articles:', error);
+//   }
+// }
+
+
+
+
+async function addDummyPasswordToUsers() {
   try {
-    console.log("Starting migration for Web Story articles...");
-    const articles = await Article.find({ type: 'Web Story' });
+console.log("hu");
 
-    if (articles.length === 0) {
-      console.log('No Web Story articles found');
-      return;
+    // Dummy password
+    const dummyPassword = "dummyPassword123";
+
+    // Hash the dummy password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(dummyPassword, salt);
+
+    // Find users without a password field
+    const usersWithoutPassword = await User.find({ password: { $exists: false } });
+    console.log("da: ", usersWithoutPassword);
+
+    for (const user of usersWithoutPassword) {
+      user.password = hashedPassword;
+      await user.save();
+      console.log(`Updated user: ${user.email}`);
     }
 
-    for (const article of articles) {
-      try {
-        const parsedContent = JSON.parse(article.content);
-
-        // Ensure parsedContent has the correct structure
-        const webStoryData = parsedContent?.data?.web_story || [];
-
-        // Transforming web_story data to match the schema
-        const newWebStoryData = webStoryData.map(item => ({
-          type: item.type.toLowerCase(),
-          cta_link: item.cta_link || "",
-          cta_text: item.cta_text || "",
-          title: item.title || "",
-          img_src: item.img_src || "",
-          desc: item.desc || ""
-        }));
-
-        // Update the web_story field
-        article.web_story = newWebStoryData;
-
-        // Save the updated article
-        await article.save();
-        console.log(`Article with id ${article._id} updated successfully`);
-      } catch (err) {
-        console.error(`Error updating article with id ${article._id}:`, err);
-      }
-    }
-
-    console.log('All Web Story articles updated successfully');
+    console.log("All users updated successfully.");
   } catch (error) {
-    console.error('Error updating Web Story articles:', error);
+    console.error("Error updating users:", error);
+  } finally {
+    // Close the database connection
+  
   }
 }
 
-export { updateAllWebStoryArticles };
+
+
+export { addDummyPasswordToUsers };
 
 
 
