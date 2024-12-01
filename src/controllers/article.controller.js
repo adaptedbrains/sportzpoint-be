@@ -366,7 +366,11 @@ export const getArticleBySlugController = async (req, res) => {
         }
 
         const latestArticles = await Article.find({
-            categories: { $in: article.categories }, // Match any of the categories
+            // categories: { $in: article.categories }, // Match any of the categories
+            $or: [
+                { tags: { $in: article.tags.map(tag => tag._id) } },
+                { primary_category: article.primary_category._id }
+              ],
             _id: { $ne: article._id.toString() }, // Convert _id to a string for comparison
             slug: { $ne: slug }, // Ensure the slug is not the same
             published_at_datetime: { $ne: null } // Ensure the article is published
