@@ -57,7 +57,9 @@ credits:[{
     img_src: { type: String, default:'' },
     desc: { type: String, default:'' }
   }]
-});
+},
+{ timestamps: true }
+);
 
 const Article = db.model('Article', ArticleSchema, 'articles')
 
