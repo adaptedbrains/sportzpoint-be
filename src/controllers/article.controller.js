@@ -351,7 +351,7 @@ export const getArticleBySlugController = async (req, res) => {
 
         // Find the article by slug
         const article = await Article.findOne({ slug })
-            .populate("primary_category", "name slug") // Populate primary category
+            .populate("primary_category", "name slug")
             .populate("categories", "name slug")
             .populate("tags", "name slug")
             .populate("author", "name email social_profiles profile_picture")
@@ -359,17 +359,19 @@ export const getArticleBySlugController = async (req, res) => {
             .populate({
                 path: "live_blog_updates",
                 options: { sort: { createdAt: -1 } }, // Sort live_blog_updates by createdAt in descending order
-            })
+            });
 
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
         }
 
-        // Fetch the 5 latest articles
         const latestArticles = await Article.find({
-            published_at_datetime: { $ne: null } // Ensure `published_at_datetime` is not null
+            categories: { $in: article.categories }, // Match any of the categories
+            _id: { $ne: article._id.toString() }, // Convert _id to a string for comparison
+            slug: { $ne: slug }, // Ensure the slug is not the same
+            published_at_datetime: { $ne: null } // Ensure the article is published
         })
-        .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
+        .sort({ published_at_datetime: -1 })
         .limit(5)
         .populate("primary_category", "name slug")
         .populate("categories", "name slug")
@@ -378,28 +380,11 @@ export const getArticleBySlugController = async (req, res) => {
         .populate("credits", "name email social_profiles profile_picture")
         .populate({
             path: "live_blog_updates",
-            options: { sort: { createdAt: -1 } } // Sort live_blog_updates by createdAt in descending order
+            options: { sort: { createdAt: -1 } } 
         });
+        
 
-        // Fetch related stories based on categories
-        const relatedStories = await Article.find({
-            categories: { $in: article.categories }, // Match any of the categories
-            _id: { $ne: article._id }, // Exclude the current article
-            published_at_datetime: { $ne: null } // Ensure the article is published
-        })
-            .sort({ published_at_datetime: -1 }) // Sort by latest `published_at_datetime`
-            .limit(5)
-            .populate("primary_category", "name slug")
-            .populate("categories", "name slug")
-            .populate("tags", "name slug")
-            .populate("author", "name email social_profiles profile_picture")
-            .populate("credits", "name email social_profiles profile_picture")
-            .populate({
-                path: "live_blog_updates",
-                options: { sort: { createdAt: -1 } } // Sort live_blog_updates by createdAt in descending order
-            });
-
-        res.status(200).json({ article, latestArticles, relatedStories });
+        res.status(200).json({ article, latestArticles });
     } catch (error) {
         res.status(500).json({ message: "An error occurred while retrieving the article", error: error.message });
     }
