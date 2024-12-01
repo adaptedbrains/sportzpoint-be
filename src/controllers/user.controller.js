@@ -18,12 +18,16 @@ export const loginUser = async (req, res) => {
   try {
     // Check if the user exists
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
+
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password comparison result:", isMatch); // Debugging
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -42,7 +46,6 @@ export const loginUser = async (req, res) => {
         id: user._id,
         email: user.email,
         roles: user.roles,
-        // Add any other user data you want to send
       },
     });
   } catch (err) {
@@ -57,9 +60,9 @@ export const createUser = async (req, res) => {
 
   try {
     // Ensure only admins can create users
-    if (!req.user || !req.user.roles.includes("admin")) {
-      return res.status(403).json({ message: "You are not authorized to create users" });
-    }
+    // if (!req.user || !req.user.roles.includes("admin")) {
+    //   return res.status(403).json({ message: "You are not authorized to create users" });
+    // }
 
     // Check if a user with the same email exists
     const existingUser = await User.findOne({ email });
@@ -84,75 +87,22 @@ export const createUser = async (req, res) => {
 
     await newUser.save();
 
+    const subject = "sportzpoint";
+    const text = `Hello ${name},\n\nYour account has been created successfully.\n\nEmail: ${email}\nPassword: ${randomPassword}\n\nPlease change your password after logging in.\n\nBest regards,\nThe SportzPoint Team`;
+
+    await sendEmail({
+      to: email,
+      subject,
+      text,
+    });
+
+
     // Send a response with the generated password
     res.status(201).json({ message: "User created successfully", password: randomPassword, newUser });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
-
-// Email configuration for Zoho Mail
-// const transporter = nodemailer.createTransport({
-//   host: environment.SMTP_HOST, // "smtp.zoho.com"
-//   port: environment.SMTP_PORT, // 465 or 587
-//   secure: false, // true for 465, false for 587
-//   auth: {
-//     user: environment.SMTP_USER, // Your Zoho email address
-//     pass: environment.SMTP_PASSWORD, // Your Zoho app-specific password
-//   },
-// });
-
-
-// export const createUser = async (req, res) => {
-//   const { name, email, roles } = req.body;
-//   console.log("environment.SMTP_PASSWORD: ", environment.SMTP_PASSWORD);
-//   try {
-
-//     console.log("hey");
-//     // Check if a user with the same email exists
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).json({ message: "User with this email already exists" });
-//     }
-
-//     // Generate a random password
-//     const randomPassword = crypto.randomBytes(8).toString("hex");
-
-//     // Create a unique slug from the email
-//     const slug = email.replace(/@.*$/, "").replace(/\s+/g, "-").toLowerCase();
-
-//     // Create new user
-//     const newUser = new User({
-//       name,
-//       email,
-//       password: randomPassword, // The raw password will be hashed by the schema's pre-save hook
-//       roles, // You can specify roles here when creating a user
-//       slug, // Add slug to the user object
-//     });
-
-//     await newUser.save();
-
-//     // Send a welcome email to the user with their credentials
-//     const mailOptions = {
-//       from: `"sportzpoint" <${environment.SMTP_USER}>`, // Sender email
-//       to: email, // Recipient email
-//       subject: 'Your New Account Credentials',
-//       text: `Hello ${name},\n\nYour account has been created successfully.\n\nEmail: ${email}\nPassword: ${randomPassword}\n\nPlease keep your credentials safe.\n\nBest regards,\nSportzPoint`,
-//     };
-
-//     // Send the email
-//     await transporter.sendMail(mailOptions);
-
-//     res.status(201).json({ message: "User created successfully", password: randomPassword, newUser });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// };
-
-
-
-
 
 
 
@@ -288,9 +238,9 @@ export const updateUser = async (req, res) => {
 
   try {
     // Ensure only admins can update users
-    if (!req.user || !req.user.roles.includes("admin")) {
-      return res.status(403).json({ message: "You are not authorized to update users" });
-    }
+    // if (!req.user || !req.user.roles.includes("admin")) {
+    //   return res.status(403).json({ message: "You are not authorized to update users" });
+    // }
 
     // Find and update the user
     const updatedUser = await User.findByIdAndUpdate(
@@ -330,3 +280,153 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
+
+
+
+// doing some work here..
+
+
+export const sendEmail = async ({ to, subject, text }) => {
+  const transporter = nodemailer.createTransport({
+    host: environment.SMTP_HOST,
+    port: environment.SMTP_PORT,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: environment.SMTP_USER,
+        pass: environment.SMTP_PASS
+    }
+});
+
+  await transporter.sendMail({
+    from: `"sportzpoint" <${environment.SMTP_USER}>`,
+    to,
+    subject,
+    text,
+  });
+
+
+};
+
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const resetPasswordExpire = Date.now() + 30 * 60 * 1000; // Token expires in 30 minutes
+
+
+    user.resetPasswordToken = resetPasswordToken;
+    user.resetPasswordExpire = resetPasswordExpire;
+    await user.save();
+
+    // Send the email
+    const resetUrl = `${environment.WEB_LINK}/reset-password/${resetToken}`;
+    const aw= await sendEmail({
+      to: email,
+      subject: "Password Reset Request",
+      text: `You requested a password reset. Please go to the following link to reset your password: ${resetUrl}`
+    });
+    res.status(200).json({ message: "Password reset link sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+
+const resetPassword = async (req, res) => {
+
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    // Hash the token to match the one stored in the database
+    const resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find user with the matching reset password token and non-expired token
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() } // Ensure token is not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Hash the new password before saving it
+
+    user.password = password;
+    console.log("pas: ", password)
+
+    // Clear the reset token and expiration fields after password reset
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+
+    res.status(200).json({ message: "Password has been reset successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+// Fetch a specific user's data by ID
+export const getUserProfileController = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).select("-password"); // exclude password field
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user", error: error.message });
+  }
+};
+
+// Update the logged-in user's profile
+export const updateUserProfileController = async (req, res) => {
+  try {
+    const userId = req.user.id; // retrieved from the JWT payload
+    const { name, email, password } = req.body;
+
+    // Find user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update fields (only those provided)
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (password) {
+      // hash the password if updated (using bcrypt or another hashing library)
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    // Save updated user
+    await user.save();
+
+    res.json({ message: "Profile updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating profile", error: error.message });
+  }
+};
+
+
+
+
+
+export { forgotPassword, resetPassword };
+

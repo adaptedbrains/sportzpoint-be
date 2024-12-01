@@ -8,6 +8,7 @@ import { environment } from "./loaders/environment.loader.js"
 
 
 
+
 const { ValidationError } = Joi;
 const app = express()
 app.use(cors())
@@ -19,7 +20,7 @@ app.use(
     })
 )
 initRoutes(app)
-
+// addDummyPasswordToUsers()
 
 // Express error handler
 app.use((err, req, res, next) => {

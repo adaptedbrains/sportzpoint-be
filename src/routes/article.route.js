@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createArticleController, getAllTagController, getAllCategoryController, searchTagByNameController, searchCategoryByNameController, updateArticleController, publishArticleController, getArticlesByCategorySlug, getArticleByIdController, getArticlesByTagSlug, getLatestArticles, getArticleBySlugController, getArticlesByType, getPublishedArticlesByType, saveAsDraftController, getDraftArticlesByType, sendForApprovalController, getArticlesByCategoryAndTypeController, deleteArticleController, updateArticleByIdController } from "../controllers/article.controller.js";
 import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middleware.js';
 import { getPendingApprovalPostsController } from "../controllers/admin.controller.js"
+import { getPublishedAllArticles, getAllDraftArticlesByType, getAllPendingApprovalPostsController, searchArticlesByTitle } from "../controllers/getAllpost.js";
 
 
 const router = Router();
@@ -11,8 +12,12 @@ router.route("/tag/search").get(searchTagByNameController)
 router.route("/category/search").get(searchCategoryByNameController)
 
 router.route("/article/create").post(createArticleController)
+<<<<<<< HEAD
 router.route("/article/update").put(updateArticleController)
 router.route("/article/delete").put(deleteArticleController)
+=======
+router.route("/article/update/:id").patch(updateArticleController);
+>>>>>>> 95ebfc2f81e4d4803e84670ac805c449e8f5dd5b
 router.route("/article/publish").get(publishArticleController) // end user
 router.get("/article/latest-articles", getLatestArticles);  // end user
 router.get("/articles/category/:slug", getArticlesByCategorySlug); // end user
@@ -37,7 +42,14 @@ router.route("/article/update/:id").put(authenticateJWT, updateArticleByIdContro
 
 
 
+// get all the posts by typr
 
+
+router.get("/posts/published/all", getPublishedAllArticles); 
+router.get("/posts/draft/all", authenticateJWT,  getAllDraftArticlesByType);
+router.get("/posts/pending-approval/all", authenticateJWT, checkRole(['Admin', 'Editor']), 
+getAllPendingApprovalPostsController);
+router.get('/posts/search', searchArticlesByTitle);
 
 
 

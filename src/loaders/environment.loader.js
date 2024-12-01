@@ -13,5 +13,6 @@ export const environment = {
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_USER: process.env.SMTP_USER,
-    SMTP_PASSWORD: process.env.SMTP_PASSWORD
+    SMTP_PASS: process.env.SMTP_PASS,
+    WEB_LINK: process.env.WEB_LINK,
 }
