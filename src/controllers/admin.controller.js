@@ -1,4 +1,5 @@
 import { Article } from '../model/articel.model.js';
+import { User } from '../model/user.model.js';
 
 export const publishPostController = async (req, res) => {
     try {
@@ -143,4 +144,29 @@ export const stopLiveController = async (req, res) => {
         return res.status(500).json({ message: "Server error", error });
     }
 };
+
+
+export const checkingController = async (req, res) => {
+  try {
+    console.log("hu");
+    const userId = req.user.userId; // retrieved from the JWT payload
+
+    console.log("us: ", userId);
+
+    // Fetch the user using userId and lean to return plain JavaScript object
+    const user = await User.findOne({ _id: userId }).lean();
+
+    // If no user is found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Error fetching user profile", error: error.message });
+  }
+};
+
+  
 

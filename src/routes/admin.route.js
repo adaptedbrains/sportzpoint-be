@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { publishPostController, unpublishPostController, goLiveController, stopLiveController } from '../controllers/admin.controller.js';
+import { publishPostController, unpublishPostController, goLiveController, stopLiveController, checkingController } from '../controllers/admin.controller.js';
 import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -14,5 +14,5 @@ router.patch("/post/stop-live/:id", authenticateJWT, checkRole(['Admin', 'Editor
 
 
 
-
+router.get("/check", authenticateJWT, checkingController);
 export default router;
