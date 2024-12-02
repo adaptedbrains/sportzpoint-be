@@ -54,7 +54,7 @@ export const updateTag = async (req, res) => {
         const { id } = req.params;
         const { name, description, slug } = req.body;
 
-        const tag = await Tag.findOne({ id });
+        const tag = await Tag.findOne({ _id:id });
 
         if (!tag) {
             return res.status(404).json({ message: 'Tag not found' });
