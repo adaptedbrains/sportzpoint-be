@@ -468,6 +468,7 @@ export const getPublishedArticlesByType = async (req, res) => {
         const totalArticles = await Article.countDocuments({
             type,
             published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
+            status: { $ne: "draft" }
         });
 
         res.status(200).json({
