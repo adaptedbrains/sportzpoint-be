@@ -521,8 +521,14 @@ export const saveAsDraftController = async (req, res) => {
 
         const skip = (page - 1) * limit; // Calculate how many articles to skip for pagination
 
-        // Fetch draft articles based on the query
+        // Fetch draft articles based on the query and populate related fields
         const articles = await Article.find(query)
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .populate("live_blog_updates")
             .skip(skip)
             .limit(parseInt(limit))
             .exec();
@@ -531,7 +537,6 @@ export const saveAsDraftController = async (req, res) => {
         const totalCount = await Article.countDocuments(query);
 
         return res.status(200).json({
-
             articles,
             pagination: {
                 page: parseInt(page),
