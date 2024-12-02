@@ -1,34 +1,22 @@
 import express from 'express';
-import { Category } from '../model/category.model.js'; // Adjust the path as needed
+import { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory } from '../controllers/category.controller.js';
+import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-// POST /api/categories
-router.post('/categories', async (req, res) => {
-    try {
-        const { name, slug } = req.body;
+// Create Category
+router.post('/',authenticateJWT, createCategory);
 
-        if (!name || !slug) {
-            return res.status(400).json({ message: 'Name and slug are required.' });
-        }
+// Get All Categories
+router.get('/', authenticateJWT, getCategories);
 
-        // Create a new category
-        const category = new Category({ name, slug });
+// Get Category by ID
+router.get('/:id', authenticateJWT, getCategoryById);
 
-        // Save the category to the database
-        await category.save();
+// Update Category by ID
+router.put('/:id', authenticateJWT, updateCategory);
 
-        res.status(201).json({
-            message: 'Category created successfully',
-            category
-        });
-    } catch (error) {
-        if (error.code === 11000) {
-            // Handle unique constraint violation (e.g., duplicate slug)
-            return res.status(409).json({ message: 'Slug must be unique.' });
-        }
-        res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-});
+// Delete Category by ID
+router.delete('/:id',authenticateJWT, deleteCategory);
 
 export default router;
