@@ -664,3 +664,28 @@ export const updateArticleByIdController = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 };
+
+
+export const searchArticles = async (req, res) => {
+    try {
+        const { title, type } = req.query;
+
+        // Build query object
+        let query = {};
+
+        if (title) {
+            query.title = { $regex: title, $options: 'i' };  // case-insensitive search on title
+        }
+
+        if (type) {
+            query.type = type;
+        }
+
+        // Search articles based on the query
+        const articles = await Article.find(query);
+
+        return res.status(200).json({ articles });
+    } catch (error) {
+        return res.status(500).json({ message: 'An error occurred while searching for articles', error });
+    }
+};
