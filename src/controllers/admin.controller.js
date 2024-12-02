@@ -148,10 +148,10 @@ export const stopLiveController = async (req, res) => {
 
 export const checkingController = async (req, res) => {
   try {
-    console.log("hu");
+
     const userId = req.user.userId; // retrieved from the JWT payload
 
-    console.log("us: ", userId);
+
 
     // Fetch the user using userId and lean to return plain JavaScript object
     const user = await User.findOne({ _id: userId }).lean();
