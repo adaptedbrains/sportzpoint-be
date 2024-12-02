@@ -77,7 +77,7 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log("dkf: ", id);
+
 
         const category = await Category.findByIdAndDelete({_id: id });
 
