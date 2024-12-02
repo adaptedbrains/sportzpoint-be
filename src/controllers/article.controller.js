@@ -529,6 +529,7 @@ export const saveAsDraftController = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .populate("live_blog_updates")
+            .sort({ updatedAt: -1 })   
             .skip(skip)
             .limit(parseInt(limit))
             .exec();

@@ -50,7 +50,7 @@ export const getPendingApprovalPostsController = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .populate("live_blog_updates")
-            .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
+            sort({ updatedAt: -1 })        // Sort by latest `published_at_datetime`
             .skip(skip)        // Skip documents for pagination
             .limit(parseInt(limit)) // Limit the number of documents
 
