@@ -54,7 +54,7 @@ export const updateCategory = async (req, res) => {
         const { id } = req.params;
         const { name, description, slug } = req.body;
 
-        const category = await Category.findOne({ id });
+        const category = await Category.findOne({_id: id });
 
         if (!category) {
             return res.status(404).json({ message: 'Category not found' });
