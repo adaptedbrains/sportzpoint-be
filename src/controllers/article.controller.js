@@ -675,6 +675,7 @@ export const searchArticles = async (req, res) => {
   
       if (title) {
         query.title = { $regex: title, $options: 'i' }; // case-insensitive search on title
+        query.type = type;
       }
   
       if (type) {
