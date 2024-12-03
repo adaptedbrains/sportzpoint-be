@@ -63,6 +63,26 @@ const getPaginationParams = (req) => {
       res.status(500).json({ error: 'Failed to fetch posts pending approval' });
     }
   };
+
+  export const getUserPendingApprovalPostsController = async (req, res) => {
+    try {
+
+      const { skip, limitNum } = getPaginationParams(req);
+      const user = req.user.userId;
+
+  
+      const articles = await Article.find({ status: 'pending-approval', creator: user })
+        .skip(skip)
+        .limit(limitNum)
+        .sort({ updatedAt: -1 });
+  
+      const total = await Article.countDocuments({ status: 'pending-approval', creator: user });
+      res.json({ data: articles, total, page: Math.ceil(skip / limitNum) + 1 });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch posts pending approval' });
+    }
+  };
+  
   
 
   export const searchArticlesByTitle = async (req, res) => {
