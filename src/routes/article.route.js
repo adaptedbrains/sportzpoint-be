@@ -12,12 +12,7 @@ router.route("/tag/search").get(searchTagByNameController)
 router.route("/category/search").get(searchCategoryByNameController)
 
 router.route("/article/create").post(createArticleController)
-<<<<<<< HEAD
-router.route("/article/update").put(updateArticleController)
-router.route("/article/delete").put(deleteArticleController)
-=======
 router.route("/article/update/:id").patch(updateArticleController);
->>>>>>> 95ebfc2f81e4d4803e84670ac805c449e8f5dd5b
 router.route("/article/publish").get(publishArticleController) // end user
 router.get("/article/latest-articles", getLatestArticles);  // end user
 router.get("/articles/category/:slug", getArticlesByCategorySlug); // end user

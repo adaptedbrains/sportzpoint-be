@@ -83,17 +83,10 @@ export const searchCategoryByNameController = async (req, res, next) => {
 
 export const updateArticleController = async (req, res) => {
     try {
-<<<<<<< HEAD
-        const { id } = req.params; 
-       
-        
-        const updateData = req.body; 
-=======
       const { id } = req.params;
       const updateData = req.body;
   
   
->>>>>>> 95ebfc2f81e4d4803e84670ac805c449e8f5dd5b
 
       // Validate the update data
       if (!updateData || Object.keys(updateData).length === 0) {
