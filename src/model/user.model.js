@@ -7,6 +7,7 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
+    bio: { type: String, default:"" },
     meta_title: { type: String },
     meta_description: { type: String },
     display_order: { type: Number },

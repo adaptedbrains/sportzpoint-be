@@ -397,7 +397,7 @@ export const getUserProfileController = async (req, res) => {
 // Update the logged-in user's profile
 export const updateUserProfileController = async (req, res) => {
   try {
-    const userId = req.user.id; // retrieved from the JWT payload
+    const userId = req.user.userId; // retrieved from the JWT payload
     const { name, email, password } = req.body;
 
     // Find user by ID
@@ -418,11 +418,12 @@ export const updateUserProfileController = async (req, res) => {
     // Save updated user
     await user.save();
 
-    res.json({ message: "Profile updated successfully", user });
+    res.json({ user });
   } catch (error) {
     res.status(500).json({ message: "Error updating profile", error: error.message });
   }
 };
+
 
 
 

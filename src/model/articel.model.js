@@ -36,7 +36,7 @@ credits:[{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
 }],
-  published_at_datetime: { type: Date,  default: null },
+  published_at_datetime: { type: Date, default: null },
   updated_at_datetime: { type: Date },
   custom_published_at: { type: Date },
   banner_image: { type: String },

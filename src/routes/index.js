@@ -3,6 +3,8 @@ import AuthRouter from "./user.router.js"
 import AdminRouter from "./admin.route.js"
 import LiveBlogUpdateRouter from "./liveBlogUpdate.route.js"
 import UserRouter from "./user.router.js"
+import Category from "./category.route.js"
+import Tag from "./tag.route.js"
 /**
  * @param {import('express').Application} app
  */
@@ -12,6 +14,8 @@ const initRoutes = (app) => {
     app.use("/auth", AuthRouter);
     app.use("/admin", AdminRouter);
     app.use("/user", UserRouter)
+    app.use("/categories", Category)
+    app.use("/tags", Tag)
     app.get("/", async (req, res) => {
         res.json({
             "message": "Welcome to Sportzpoint Developers Portal"

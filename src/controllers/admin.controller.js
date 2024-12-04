@@ -1,12 +1,18 @@
 import { Article } from '../model/articel.model.js';
+import { User } from '../model/user.model.js';
 
 export const publishPostController = async (req, res) => {
     try {
-        console.log("hey")
         const { id } = req.params; // Get MongoDB _id from request parameters
 
-        // Find the article by _id and slug
-        const article = await Article.findOne({ _id: id });
+        // Find the article by _id and populate related fields
+        const article = await Article.findOne({ _id: id })
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .populate("live_blog_updates");
 
         if (!article) {
             return res.status(404).json({ message: 'Article not found' });
@@ -21,6 +27,7 @@ export const publishPostController = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred', error });
     }
 };
+
 
 
 export const getPendingApprovalPostsController = async (req, res) => {
@@ -38,9 +45,15 @@ export const getPendingApprovalPostsController = async (req, res) => {
 
         // Fetch articles based on the query
         const articles = await Article.find(query)
-            .skip(skip)
-            .limit(parseInt(limit))
-            .exec();
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .populate("live_blog_updates")
+            sort({ updatedAt: -1 })        // Sort by latest `published_at_datetime`
+            .skip(skip)        // Skip documents for pagination
+            .limit(parseInt(limit)) // Limit the number of documents
 
         // Get total count of matching articles for pagination metadata
         const totalCount = await Article.countDocuments(query);
@@ -131,3 +144,29 @@ export const stopLiveController = async (req, res) => {
         return res.status(500).json({ message: "Server error", error });
     }
 };
+
+
+export const checkingController = async (req, res) => {
+  try {
+
+    const userId = req.user.userId; // retrieved from the JWT payload
+
+
+
+    // Fetch the user using userId and lean to return plain JavaScript object
+    const user = await User.findOne({ _id: userId }).lean();
+
+    // If no user is found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Error fetching user profile", error: error.message });
+  }
+};
+
+  
+
