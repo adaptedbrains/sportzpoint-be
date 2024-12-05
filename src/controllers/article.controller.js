@@ -752,33 +752,60 @@ export const updateArticleByIdController = async (req, res) => {
 
 export const searchArticles = async (req, res) => {
     try {
-        const { title, type } = req.query;
+        const { title, type, status, page = 1, limit = 10 } = req.query;
 
         // Build query object
         let query = {};
 
-        if (title) {
-            query.title = { $regex: title, $options: 'i' }; // case-insensitive search on title
+        if (title && title.trim() !== "") {
+            query.title = { $regex: title, $options: 'i' }; // Case-insensitive title search
+        }
+
+        if (type === 'Article') {
+            query.type = { $in: ['Article', 'article'] };
+        } else if (type) {
             query.type = type;
         }
 
-        if (type) {
-            query.type = type;
+        if (status === 'published') {
+            query.published_at_datetime = { $ne: null };
+            query.status = { $ne: "draft" };
+        } else if (status === 'draft') {
+            query.status = 'draft';
+        } else if (status === 'pending-approval') {
+            query.status = { $in: ['send-for-approval', 'pending-approval', 'pending_approval'] };
         }
 
-        // If title is empty or undefined, query should match all articles
-        if (!title && !type) {
-            query = {}; // Return all articles if no filters are provided
-        }
+        const parsedPage = parseInt(page, 10);
+        const parsedLimit = parseInt(limit, 10);
+        const skip = (parsedPage - 1) * parsedLimit;
 
-        // Search articles based on the query
-        const articles = await Article.find(query);
+        const articles = await Article.find(query)
+            .populate("primary_category", "name slug")
+            .populate("categories", "name slug")
+            .populate("tags", "name slug")
+            .populate("author", "name email social_profiles profile_picture")
+            .populate("credits", "name email social_profiles profile_picture")
+            .populate("live_blog_updates")
+            .sort({ updatedAt: -1 })
+            .skip(skip)
+            .limit(parsedLimit)
+            .exec();
 
-        return res.status(200).json({ articles });
-    } catch (error) {
-        return res.status(500).json({
-            message: 'An error occurred while searching for articles',
-            error,
+        const totalCount = await Article.countDocuments(query);
+        
+        return res.status(200).json({
+            articles,
+            pagination: {
+                page: parsedPage,
+                limit: parsedLimit,
+                total: totalCount,
+                totalPages: Math.ceil(totalCount / parsedLimit),
+            },
         });
+    } catch (error) {
+        console.error("Error fetching articles:", error);
+        return res.status(500).json({ message: 'An error occurred while searching for articles' });
     }
 };
+

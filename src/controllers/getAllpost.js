@@ -28,8 +28,8 @@ export const getPublishedAllArticles = async (req, res) => {
 
 // Fetch all draft articles by type
 export const getAllDraftArticlesByType = async (req, res) => {
-  
-  
+
+
   try {
     const { skip, limitNum } = getPaginationParams(req);
     const { type } = req.query;
@@ -75,7 +75,12 @@ export const getAllPendingApprovalPostsController = async (req, res) => {
     }
 
     // Fetch articles with pagination and sorting
-    const articles = await Article.find(query)
+    const articles = await Article.find(query).populate("primary_category", "name slug") 
+      .populate("categories", "name slug")    
+      .populate("tags", "name slug")             
+      .populate("author", "name email social_profiles profile_picture") // Populate author details
+      .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+      .populate("live_blog_updates")
       .skip(skip)
       .limit(limitNum)
       .sort({ updatedAt: -1 });
@@ -92,8 +97,8 @@ export const getAllPendingApprovalPostsController = async (req, res) => {
         page: Math.ceil(skip / limitNum) + 1,
         totalPages: Math.ceil(total / limitNum),
       }
-     
-     
+
+
     });
   } catch (error) {
     console.error('Error fetching pending approval posts:', error); // Log the error
