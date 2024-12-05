@@ -78,8 +78,8 @@ export const getAllPendingApprovalPostsController = async (req, res) => {
     const articles = await Article.find(query).populate("primary_category", "name slug") 
       .populate("categories", "name slug")    
       .populate("tags", "name slug")             
-      .populate("author", "name email social_profiles profile_picture") 
-      .populate("credits", "name email social_profiles profile_picture") 
+      .populate("author", "name email social_profiles profile_picture") // Populate author details
+      .populate("credits", "name email social_profiles profile_picture") // Populate credits details
       .populate("live_blog_updates")
       .skip(skip)
       .limit(limitNum)
