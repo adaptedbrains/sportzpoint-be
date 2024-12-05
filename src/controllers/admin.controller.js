@@ -1,5 +1,6 @@
 import { Article } from '../model/articel.model.js';
 import { User } from '../model/user.model.js';
+import { generateNewsSitemap } from '../service/sitemap.service.js';
 
 export const publishPostController = async (req, res) => {
     try {
@@ -21,7 +22,7 @@ export const publishPostController = async (req, res) => {
         // Update the published_at_datetime to the current date
         article.published_at_datetime = new Date();
         await article.save();
-
+        await generateNewsSitemap(); 
         return res.status(200).json({ message: 'Article published successfully', article });
     } catch (error) {
         return res.status(500).json({ message: 'An error occurred', error });
@@ -51,7 +52,7 @@ export const getPendingApprovalPostsController = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .populate("live_blog_updates")
-            sort({ updatedAt: -1 })        // Sort by latest `published_at_datetime`
+            sort({ createdAt: -1 })        // Sort by latest `published_at_datetime`
             .skip(skip)        // Skip documents for pagination
             .limit(parseInt(limit)) // Limit the number of documents
 
