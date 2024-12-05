@@ -6,110 +6,110 @@ import mongoose from "mongoose";
 
 
 export const createArticleController = async (req, res, next) => {
-  const requestedData = req.body;
-    
-  
+    const requestedData = req.body;
 
-  try {
-    const newArticle = new Article({
-      ...requestedData,
-    });
 
-    const article = await newArticle.save();
-    return res.status(200).json({ article });
-  } catch (err) {
-    console.log("err: ", err);
-    next(err);
-  }
+
+    try {
+        const newArticle = new Article({
+            ...requestedData,
+        });
+
+        const article = await newArticle.save();
+        return res.status(200).json({ article });
+    } catch (err) {
+        console.log("err: ", err);
+        next(err);
+    }
 };
 
 export const getAllTagController = async (req, res, next) => {
-  try {
-    const tags = await Tag.find();
-    return res.status(200).json({ tags });
-  } catch (err) {
-    console.log("err: ", err);
-    next(err);
-  }
+    try {
+        const tags = await Tag.find();
+        return res.status(200).json({ tags });
+    } catch (err) {
+        console.log("err: ", err);
+        next(err);
+    }
 };
 
 export const getAllCategoryController = async (req, res, next) => {
-  try {
-    const categories = await Category.find();
-    return res.status(200).json({ categories });
-  } catch (err) {
-    console.log("err: ", err);
-    next(err);
-  }
+    try {
+        const categories = await Category.find();
+        return res.status(200).json({ categories });
+    } catch (err) {
+        console.log("err: ", err);
+        next(err);
+    }
 };
 
 export const searchTagByNameController = async (req, res, next) => {
-  try {
-    const { name } = req.query; 
-    if (!name) {
-      return res.status(400).json({ message: "Tag name is required" });
-    }
+    try {
+        const { name } = req.query;
+        if (!name) {
+            return res.status(400).json({ message: "Tag name is required" });
+        }
 
-    const tag = await Tag.findOne({ name: new RegExp(name, 'i') });
-    if (!tag) {
-      return res.status(404).json({ message: "Tag not found" });
-    }
+        const tag = await Tag.findOne({ name: new RegExp(name, 'i') });
+        if (!tag) {
+            return res.status(404).json({ message: "Tag not found" });
+        }
 
-    return res.status(200).json({ tag });
-  } catch (err) {
-    console.log("err: ", err);
-    next(err);
-  }
+        return res.status(200).json({ tag });
+    } catch (err) {
+        console.log("err: ", err);
+        next(err);
+    }
 };
 
 export const searchCategoryByNameController = async (req, res, next) => {
-  try {
-    const { name } = req.query; 
-    if (!name) {
-      return res.status(400).json({ message: "Category name is required" });
-    }
+    try {
+        const { name } = req.query;
+        if (!name) {
+            return res.status(400).json({ message: "Category name is required" });
+        }
 
-    const category = await Category.findOne({ name: new RegExp(name, 'i') });
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
+        const category = await Category.findOne({ name: new RegExp(name, 'i') });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
 
-    return res.status(200).json({ category });
-  } catch (err) {
-    console.log("err: ", err);
-    next(err);
-  }
+        return res.status(200).json({ category });
+    } catch (err) {
+        console.log("err: ", err);
+        next(err);
+    }
 };
 
 export const updateArticleController = async (req, res) => {
     try {
-      const { id } = req.params;
-      const updateData = req.body;
-  
-  
+        const { id } = req.params;
+        const updateData = req.body;
 
-      // Validate the update data
-      if (!updateData || Object.keys(updateData).length === 0) {
-        return res.status(400).json({ message: "Update data is required" });
-      }
-  
-      // Update the article and return the updated data
-      const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
-        new: true, // Return the updated document
-        runValidators: true, // Run validation on update
-      });
-  
-      // Check if the article was found and updated
-      if (!updatedArticle) {
-        return res.status(404).json({ message: "Article not found" });
-      }
-  
-      res.status(200).json({  article: updatedArticle });
+
+
+        // Validate the update data
+        if (!updateData || Object.keys(updateData).length === 0) {
+            return res.status(400).json({ message: "Update data is required" });
+        }
+
+        // Update the article and return the updated data
+        const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
+            new: true, // Return the updated document
+            runValidators: true, // Run validation on update
+        });
+
+        // Check if the article was found and updated
+        if (!updatedArticle) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+
+        res.status(200).json({ article: updatedArticle });
     } catch (error) {
-      console.error("Error updating article:", error);
-      res.status(500).json({ message: "An error occurred while updating the article", error: error.message });
+        console.error("Error updating article:", error);
+        res.status(500).json({ message: "An error occurred while updating the article", error: error.message });
     }
-  };
+};
 
 export const publishArticleController = async (req, res) => {
     try {
@@ -389,7 +389,7 @@ export const getLatestArticles = async (req, res) => {
 //             path: "live_blog_updates",
 //             options: { sort: { createdAt: -1 } } 
 //         });
-        
+
 
 //         res.status(200).json({ article, latestArticles });
 //     } catch (error) {
@@ -421,30 +421,11 @@ export const getArticleBySlugController = async (req, res) => {
             $or: [
                 { tags: { $in: article.tags.map(tag => tag._id) } },
                 { primary_category: article.primary_category._id }
-              ],
+            ],
             _id: { $ne: article._id.toString() }, // Convert _id to a string for comparison
             slug: { $ne: slug }, // Ensure the slug is not the same
             published_at_datetime: { $ne: null } // Ensure the article is published
         })
-        .sort({ published_at_datetime: -1 })
-        .limit(5)
-        .populate("primary_category", "name slug")
-        .populate("categories", "name slug")
-        .populate("tags", "name slug")
-        .populate("author", "name email social_profiles profile_picture")
-        .populate("credits", "name email social_profiles profile_picture")
-        .populate({
-            path: "live_blog_updates",
-            options: { sort: { createdAt: -1 } } 
-        });
-
-        // Fallback to other articles if no latest articles found
-        if (latestArticles.length === 0) {
-            latestArticles = await Article.find({
-                _id: { $ne: article._id.toString() },
-                slug: { $ne: slug },
-                published_at_datetime: { $ne: null }
-            })
             .sort({ published_at_datetime: -1 })
             .limit(5)
             .populate("primary_category", "name slug")
@@ -456,6 +437,25 @@ export const getArticleBySlugController = async (req, res) => {
                 path: "live_blog_updates",
                 options: { sort: { createdAt: -1 } }
             });
+
+        // Fallback to other articles if no latest articles found
+        if (latestArticles.length === 0) {
+            latestArticles = await Article.find({
+                _id: { $ne: article._id.toString() },
+                slug: { $ne: slug },
+                published_at_datetime: { $ne: null }
+            })
+                .sort({ published_at_datetime: -1 })
+                .limit(5)
+                .populate("primary_category", "name slug")
+                .populate("categories", "name slug")
+                .populate("tags", "name slug")
+                .populate("author", "name email social_profiles profile_picture")
+                .populate("credits", "name email social_profiles profile_picture")
+                .populate({
+                    path: "live_blog_updates",
+                    options: { sort: { createdAt: -1 } }
+                });
         }
 
         res.status(200).json({ article, latestArticles });
@@ -513,17 +513,29 @@ export const getArticlesByType = async (req, res) => {
 export const getPublishedArticlesByType = async (req, res) => {
     try {
         const { type } = req.query; // Get the type from query parameters
+
+
         const { limit = 10, page = 1 } = req.query;
 
         // Validate limit and page
         const limitValue = Math.max(Number(limit), 1); // Ensure limit is at least 1
         const pageValue = Math.max(Number(page), 1);   // Ensure page is at least 1
+        let query = {
+            published_at_datetime: { $ne: null },
+            status: { $ne: "draft" }
+        };
+        if (type === 'Article') {
+            if (type) {
+                query.type = { $in: ['Article', 'article'] };
+            }
+        } else {
+            query.type = type
+        }
+        console.log(query);
+
 
         // Fetch published articles by type
-        const articles = await Article.find({
-            type, // Assuming 'type' is a field in your Article model
-            published_at_datetime: { $ne: null }, // Ensure `published_at_datetime` is not null
-        })
+        const articles = await Article.find(query)
             .populate("primary_category", "name slug") // Populate primary category
             .populate("categories", "name slug")       // Populate secondary categories
             .populate("tags", "name slug")             // Populate tags
@@ -558,27 +570,27 @@ export const getPublishedArticlesByType = async (req, res) => {
 
 export const saveAsDraftController = async (req, res) => {
     try {
-      const requestedData = req.body;
+        const requestedData = req.body;
 
-  
-      // Add the authenticated user's ID as the author
-      const newArticle = new Article({
-        ...requestedData,
-        author: req.user.userId, // Assuming `id` is the user's identifier
-        status: "draft",
-        published_at_datetime: null
 
-      });
-  
-      const article = await newArticle.save();
-      return res.status(201).json({ article });
+        // Add the authenticated user's ID as the author
+        const newArticle = new Article({
+            ...requestedData,
+            author: req.user.userId, // Assuming `id` is the user's identifier
+            status: "draft",
+            published_at_datetime: null
+
+        });
+
+        const article = await newArticle.save();
+        return res.status(201).json({ article });
     } catch (error) {
-      return res.status(500).json({ message: 'An error occurred', error });
+        return res.status(500).json({ message: 'An error occurred', error });
     }
-  };
-  
+};
 
-  export const getDraftArticlesByType = async (req, res) => {
+
+export const getDraftArticlesByType = async (req, res) => {
     try {
         const { type, page = 1, limit = 10 } = req.query; // Extract type, page, and limit from query parameters
 
@@ -599,7 +611,7 @@ export const saveAsDraftController = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .populate("live_blog_updates")
-            .sort({ updatedAt: -1 })   
+            .sort({ updatedAt: -1 })
             .skip(skip)
             .limit(parseInt(limit))
             .exec();
@@ -612,7 +624,7 @@ export const saveAsDraftController = async (req, res) => {
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
-                totalCount,
+                total: totalCount,
                 totalPages: Math.ceil(totalCount / limit),
             },
         });
@@ -667,14 +679,14 @@ export const getArticlesByCategoryAndTypeController = async (req, res) => {
             type, // Assuming 'type' is a field in your Article model
             published_at_datetime: { $ne: null } // Ensure `published_at_datetime` is not null
         })
-        .populate("primary_category", "name slug") // Populate primary category
-        .populate("categories", "name slug")       // Populate secondary categories
-        .populate("tags", "name slug")             // Populate tags
-        .populate("author", "name email social_profiles profile_picture") // Populate author details
-        .populate("credits", "name email social_profiles profile_picture") // Populate credits details
-        .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
-        .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
-        .limit(limitValue);                        // Limit the number of documents
+            .populate("primary_category", "name slug") // Populate primary category
+            .populate("categories", "name slug")       // Populate secondary categories
+            .populate("tags", "name slug")             // Populate tags
+            .populate("author", "name email social_profiles profile_picture") // Populate author details
+            .populate("credits", "name email social_profiles profile_picture") // Populate credits details
+            .sort({ published_at_datetime: -1 })       // Sort by latest `published_at_datetime`
+            .skip((pageValue - 1) * limitValue)        // Skip documents for pagination
+            .limit(limitValue);                        // Limit the number of documents
 
         // Get the total count of articles with a `published_at_datetime` for the category and type
         const totalArticles = await Article.countDocuments({
@@ -700,8 +712,8 @@ export const getArticlesByCategoryAndTypeController = async (req, res) => {
 
 export const deleteArticleController = async (req, res) => {
     const { id } = req.params;
-        
-        
+
+
     try {
         // Find the article by its ID and delete it
         const article = await Article.findByIdAndDelete(id);
@@ -710,7 +722,7 @@ export const deleteArticleController = async (req, res) => {
             return res.status(404).json({ message: "Article not found" });
         }
         console.log("hello");
-        
+
         res.status(200).json({ message: "Article deleted successfully" });
     } catch (error) {
         console.error("Error deleting article:", error.message);
@@ -740,34 +752,33 @@ export const updateArticleByIdController = async (req, res) => {
 
 export const searchArticles = async (req, res) => {
     try {
-      const { title, type } = req.query;
-  
-      // Build query object
-      let query = {};
-  
-      if (title) {
-        query.title = { $regex: title, $options: 'i' }; // case-insensitive search on title
-        query.type = type;
-      }
-  
-      if (type) {
-        query.type = type;
-      }
-  
-      // If title is empty or undefined, query should match all articles
-      if (!title && !type) {
-        query = {}; // Return all articles if no filters are provided
-      }
-  
-      // Search articles based on the query
-      const articles = await Article.find(query);
-  
-      return res.status(200).json({ articles });
+        const { title, type } = req.query;
+
+        // Build query object
+        let query = {};
+
+        if (title) {
+            query.title = { $regex: title, $options: 'i' }; // case-insensitive search on title
+            query.type = type;
+        }
+
+        if (type) {
+            query.type = type;
+        }
+
+        // If title is empty or undefined, query should match all articles
+        if (!title && !type) {
+            query = {}; // Return all articles if no filters are provided
+        }
+
+        // Search articles based on the query
+        const articles = await Article.find(query);
+
+        return res.status(200).json({ articles });
     } catch (error) {
-      return res.status(500).json({
-        message: 'An error occurred while searching for articles',
-        error,
-      });
+        return res.status(500).json({
+            message: 'An error occurred while searching for articles',
+            error,
+        });
     }
-  };
-  
+};
