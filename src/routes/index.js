@@ -5,6 +5,7 @@ import LiveBlogUpdateRouter from "./liveBlogUpdate.route.js"
 import UserRouter from "./user.router.js"
 import Category from "./category.route.js"
 import Tag from "./tag.route.js"
+import RssRoute from "./rss.route.js"
 /**
  * @param {import('express').Application} app
  */
@@ -16,6 +17,8 @@ const initRoutes = (app) => {
     app.use("/user", UserRouter)
     app.use("/categories", Category)
     app.use("/tags", Tag)
+    app.use("/rss", RssRoute)
+
     app.get("/", async (req, res) => {
         res.json({
             "message": "Welcome to Sportzpoint Developers Portal"
