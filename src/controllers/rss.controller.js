@@ -1,30 +1,74 @@
+// import { Article } from "../model/articel.model.js";
+// import { escape } from "html-escaper"; 
+// export const  getRssFeedController =   async (req, res) => {
+//   try {
+//     const articles = await Article.find({ published_at_datetime: { $ne: null }, })
+//       .sort({ published_at_datetime: -1 })
+//       .limit(10);
+
+//     const rssItems = articles
+//       .map((article) => `
+//         <item>
+//           <title>${escape(article.title)}</title>
+//           <link>${process.env.WEB_LINK}/articles/${article.slug}</link>
+//           <description>${escape(article.summary || "")}</description>
+//           <pubDate>${new Date(article.published_at_datetime).toUTCString()}</pubDate>
+//           <category>${article.primary_category?.name || "General"}</category>
+//           <guid isPermaLink="true">${process.env.WEB_LINK}/articles/${article.slug}</guid>
+//         </item>
+//       `)
+//       .join("");
+
+//     const rssFeed = `
+//       <rss version="2.0">
+//         <channel>
+//           <title>SportPoing News</title>
+//           <link>${process.env.WEB_LINK}</link>
+//           <description>Latest articles from SportPoing</description>
+//           ${rssItems}
+//         </channel>
+//       </rss>
+//     `;
+
+//     res.set("Content-Type", "application/xml");
+//     res.status(200).send(rssFeed.trim());
+//   } catch (error) {
+//     console.error("Error generating RSS feed:", error);
+//     res.status(500).send("Internal Server Error");
+//   } 
+// };
+
+
+
 import { Article } from "../model/articel.model.js";
-import { escape } from "html-escaper"; 
-export const  getRssFeedController =   async (req, res) => {
+import { escape } from "html-escaper";
+
+export const getRssFeedController = async (req, res) => {
   try {
-    const articles = await Article.find({ published_at_datetime: { $ne: null }, })
+    const articles = await Article.find({ published_at_datetime: { $ne: null } })
       .sort({ published_at_datetime: -1 })
       .limit(10);
 
     const rssItems = articles
       .map((article) => `
         <item>
-          <title>${escape(article.title)}</title>
-          <link>${process.env.WEB_LINK}/articles/${article.slug}</link>
-          <description>${escape(article.summary || "")}</description>
+          <title>${escape(article.title || "No title")}</title>
+          <link>${process.env.WEB_LINK}/articles/${encodeURIComponent(article.slug)}</link>
+          <description>${escape(article.summary || "No description available")}</description>
           <pubDate>${new Date(article.published_at_datetime).toUTCString()}</pubDate>
-          <category>${article.primary_category?.name || "General"}</category>
-          <guid isPermaLink="true">${process.env.WEB_LINK}/articles/${article.slug}</guid>
+          <category>${escape(article.primary_category?.name || "General")}</category>
+          <guid isPermaLink="true">${process.env.WEB_LINK}/articles/${encodeURIComponent(article.slug)}</guid>
         </item>
       `)
       .join("");
 
     const rssFeed = `
-      <rss version="2.0">
+      <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
         <channel>
-          <title>SportPoing News</title>
+          <title>SportPoint News</title>
           <link>${process.env.WEB_LINK}</link>
-          <description>Latest articles from SportPoing</description>
+          <description>Latest articles from SportPoint</description>
+          <atom:link href="${process.env.WEB_LINK}/rss/rss-feed" rel="self" type="application/rss+xml" />
           ${rssItems}
         </channel>
       </rss>
@@ -35,5 +79,5 @@ export const  getRssFeedController =   async (req, res) => {
   } catch (error) {
     console.error("Error generating RSS feed:", error);
     res.status(500).send("Internal Server Error");
-  } 
+  }
 };
