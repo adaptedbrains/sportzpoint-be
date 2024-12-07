@@ -3,11 +3,10 @@ import { db } from "../loaders/db.loader.js";
 
 const ArticleSchema = new mongoose.Schema({
   post_id: { type: Number, unique: true },
-  type: { type: String, enum: ["Article", "Video", "Newsletter", "LiveBlog", "CustomPage", "Gallery","Web Story" ], required: true },
-  title: { type: String, required: true },
+  type: { type: String, enum: ["Article", "Video", "Newsletter", "LiveBlog", "CustomPage", "Gallery","Web Story" ] },
+  title: { type: String },
   slug: {
     type: String,
-    required: true,
     unique: true
 },
   summary: { type: String },
