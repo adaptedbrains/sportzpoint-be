@@ -4,7 +4,7 @@ import { isAdmin, authenticateJWT, checkRole } from '../middleware/auth.middlewa
 
 const router = Router();
 
-router.route("/post/publish/:id").get(authenticateJWT, checkRole(['Admin', 'Editor']), publishPostController);
+router.route("/post/publish/:id").put(authenticateJWT, checkRole(['Admin', 'Editor']), publishPostController);
 
 router.route("/post/unpublish/:id").patch(authenticateJWT, checkRole(['Admin', 'Editor']), unpublishPostController);
 
