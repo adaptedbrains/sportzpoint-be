@@ -30,6 +30,8 @@ import { User } from '../model/user.model.js';
 // };
 
 
+
+
 export const publishPostController = async (req, res) => {
     try {
         const { id } = req.params; // Get MongoDB _id from request parameters

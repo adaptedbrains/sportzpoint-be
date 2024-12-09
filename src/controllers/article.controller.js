@@ -5,23 +5,58 @@ import { User } from "../model/user.model.js";
 import mongoose from "mongoose";
 
 
+// export const createArticleController = async (req, res, next) => {
+//     const requestedData = req.body;
+
+
+
+//     try {
+//         const newArticle = new Article({
+//             ...requestedData,
+//         });
+
+//         const article = await newArticle.save();
+//         return res.status(200).json({ article });
+//     } catch (err) {
+//         console.log("err: ", err);
+//         next(err);
+//     }
+// };
+
+
 export const createArticleController = async (req, res, next) => {
     const requestedData = req.body;
 
-
-
     try {
-        const newArticle = new Article({
-            ...requestedData,
-        });
+        const { oldId } = requestedData;
 
-        const article = await newArticle.save();
+        if (!oldId) {
+            return res.status(400).json({ message: "oldId is required." });
+        }
+
+        // Check if an article with the same oldId already exists
+        const existingArticle = await Article.findOne({ oldId });
+
+        let article;
+        if (existingArticle) {
+            // Update the existing article with new data
+            Object.assign(existingArticle, requestedData);
+            article = await existingArticle.save();
+            console.log(`Updated existing article with oldId: ${oldId}`);
+        } else {
+            // Create a new article
+            const newArticle = new Article(requestedData);
+            article = await newArticle.save();
+            console.log(`Created new article with oldId: ${oldId}`);
+        }
+
         return res.status(200).json({ article });
     } catch (err) {
-        console.log("err: ", err);
+        console.error("Error in createArticleController:", err);
         next(err);
     }
 };
+
 
 export const getAllTagController = async (req, res, next) => {
     try {
