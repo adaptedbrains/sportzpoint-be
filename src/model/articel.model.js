@@ -9,6 +9,9 @@ const ArticleSchema = new mongoose.Schema({
     type: String,
     unique: true
 },
+id: {
+    type: String
+},
   summary: { type: String },
   legacy_url: { type: String },
   primary_category:[{
@@ -39,7 +42,10 @@ credits:[{
   updated_at_datetime: { type: Date },
   custom_published_at: { type: Date },
   banner_image: { type: String },
+  video: { type: String },
+  video_caption: { type: String },
   banner_desc: { type: String },
+  banner_caption: { type: String },
   img_alt: { type: String },
   hide_banner_image: { type: Boolean, default: false },
   seo_desc: { type: String },
@@ -59,6 +65,20 @@ credits:[{
 },
 { timestamps: true }
 );
+
+ArticleSchema.pre('save', async function (next) {
+    if (!this.isModified('slug')) return next();
+    
+    try {
+        const existingArticle = await this.constructor.findOne({ slug: this.slug });
+        if (existingArticle && existingArticle.post_id !== this.post_id) {
+            throw new Error('Slug already exists for another article.');
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
 
 const Article = db.model('Article', ArticleSchema, 'articles')
 
