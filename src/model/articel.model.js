@@ -9,6 +9,9 @@ const ArticleSchema = new mongoose.Schema({
     type: String,
     unique: true
 },
+id: {
+    type: String
+},
   summary: { type: String },
   legacy_url: { type: String },
   primary_category:[{
