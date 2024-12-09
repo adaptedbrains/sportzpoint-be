@@ -52,8 +52,7 @@ export const publishPostController = async (req, res) => {
         // Check if there's an existing article with the same oldId but a different _id
         if (article.oldId) {
             const existingArticle = await Article.findOne({
-                oldId: article.oldId,
-                _id: { $ne: article._id }, // Exclude the current article
+                _id: article.oldId
             });
 
             if (existingArticle) {
