@@ -63,6 +63,7 @@ export const publishPostController = async (req, res) => {
 
         // Update the published_at_datetime to the current date
         article.published_at_datetime = new Date();
+        article.status = "published";
         await article.save();
 
         // Regenerate the sitemap after publishing
