@@ -1,6 +1,6 @@
 import { Article } from '../model/articel.model.js';
 import { User } from '../model/user.model.js';
-import { generateNewsSitemap } from '../service/sitemap.service.js';
+// import { generateNewsSitemap } from '../service/sitemap.service.js';
 
 // export const publishPostController = async (req, res) => {
 //     try {
@@ -66,7 +66,7 @@ export const publishPostController = async (req, res) => {
         await article.save();
 
         // Regenerate the sitemap after publishing
-        await generateNewsSitemap();
+        // await generateNewsSitemap();
 
         return res.status(200).json({ message: 'Article published successfully', article });
     } catch (error) {
