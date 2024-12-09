@@ -150,3 +150,24 @@ export const searchArticlesByTitle = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+
+export const getLiveArticles = async (req, res) => {
+  try {
+    // Find all live articles, sorted by published_at_datetime in descending order
+    const liveArticles = await Article.find({ isLive: true })
+      .populate('author tags categories primary_category live_blog_updates')
+      .sort({ published_at_datetime: -1 }); // Sort by published_at_datetime in descending order
+
+    // If no articles are found, send a 404 response
+    if (!liveArticles || liveArticles.length === 0) {
+      return res.status(404).json({ message: "No live articles found." });
+    }
+
+    // Send the live articles as the response
+    return res.status(200).json(liveArticles);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
