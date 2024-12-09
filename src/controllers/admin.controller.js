@@ -31,6 +31,7 @@ import { User } from '../model/user.model.js';
 
 
 export const publishPostController = async (req, res) => {
+    console.log("hi")
     try {
         const { id } = req.params; // Get MongoDB _id from request parameters
 
@@ -42,7 +43,7 @@ export const publishPostController = async (req, res) => {
             .populate("author", "name email social_profiles profile_picture") // Populate author details
             .populate("credits", "name email social_profiles profile_picture") // Populate credits details
             .populate("live_blog_updates");
-
+            console.log("article",article)
         if (!article) {
             return res.status(404).json({ message: 'Article not found' });
         }
@@ -50,10 +51,11 @@ export const publishPostController = async (req, res) => {
         // Check if there's an existing article with the same oldId but a different _id
         if (article.oldId) {
             const existingArticle = await Article.findOne({
-                oldId: article.oldId,
-                _id: { $ne: article._id }, // Exclude the current article
+                _id: article.oldId,
+                
             });
-
+            console.log("existingArticle",existingArticle);
+            
             if (existingArticle) {
                 // Delete the existing article with the same oldId
                 await Article.deleteOne({ _id: existingArticle._id });
@@ -63,6 +65,7 @@ export const publishPostController = async (req, res) => {
 
         // Update the published_at_datetime to the current date
         article.published_at_datetime = new Date();
+        article.status = "published";
         await article.save();
 
         // Regenerate the sitemap after publishing

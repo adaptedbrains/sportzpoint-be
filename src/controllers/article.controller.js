@@ -86,6 +86,7 @@ export const updateArticleController = async (req, res) => {
         const { id } = req.params;
         const updateData = req.body;
 
+       
 
 
         // Validate the update data
