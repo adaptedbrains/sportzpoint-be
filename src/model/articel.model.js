@@ -39,6 +39,8 @@ credits:[{
   updated_at_datetime: { type: Date },
   custom_published_at: { type: Date },
   banner_image: { type: String },
+  video: { type: String },
+  video_caption: { type: String },
   banner_desc: { type: String },
   banner_caption: { type: String },
   img_alt: { type: String },
