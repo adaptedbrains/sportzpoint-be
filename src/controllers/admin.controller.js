@@ -30,6 +30,8 @@ import { User } from '../model/user.model.js';
 // };
 
 
+
+
 export const publishPostController = async (req, res) => {
     console.log("hi")
     try {
@@ -51,8 +53,7 @@ export const publishPostController = async (req, res) => {
         // Check if there's an existing article with the same oldId but a different _id
         if (article.oldId) {
             const existingArticle = await Article.findOne({
-                _id: article.oldId,
-                
+                _id: article.oldId
             });
             console.log("existingArticle",existingArticle);
             
