@@ -9,7 +9,7 @@ const ArticleSchema = new mongoose.Schema({
     type: String,
     unique: true
 },
-id: {
+oldId: {
     type: String
 },
   summary: { type: String },
