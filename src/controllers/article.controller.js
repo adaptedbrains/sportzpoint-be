@@ -5,23 +5,55 @@ import { User } from "../model/user.model.js";
 import mongoose from "mongoose";
 
 
+// export const createArticleController = async (req, res, next) => {
+//     const requestedData = req.body;
+
+
+
+//     try {
+//         const newArticle = new Article({
+//             ...requestedData,
+//         });
+
+//         const article = await newArticle.save();
+//         return res.status(200).json({ article });
+//     } catch (err) {
+//         console.log("err: ", err);
+//         next(err);
+//     }
+// };
+
 export const createArticleController = async (req, res, next) => {
     const requestedData = req.body;
 
-
-
     try {
-        const newArticle = new Article({
-            ...requestedData,
-        });
+        const { oldId } = requestedData;
 
+        // Check if oldId exists in the request data
+        if (oldId) {
+            // If oldId exists, find the article with the same oldId
+            const existingArticle = await Article.findOne({ oldId });
+
+            if (existingArticle) {
+                // Update the existing article with new data
+                Object.assign(existingArticle, requestedData);
+                const article = await existingArticle.save();
+                console.log(`Updated existing article with oldId: ${oldId}`);
+                return res.status(200).json({ article });
+            }
+        }
+
+        // If no oldId found or no match in the database, create a new article
+        const newArticle = new Article(requestedData);
         const article = await newArticle.save();
+        console.log(`Created new article with oldId: ${oldId}`);
         return res.status(200).json({ article });
     } catch (err) {
-        console.log("err: ", err);
+        console.error("Error in createArticleController:", err);
         next(err);
     }
 };
+
 
 export const getAllTagController = async (req, res, next) => {
     try {
@@ -86,6 +118,7 @@ export const updateArticleController = async (req, res) => {
         const { id } = req.params;
         const updateData = req.body;
 
+       
 
 
         // Validate the update data
