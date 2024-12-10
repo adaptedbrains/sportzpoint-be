@@ -430,6 +430,7 @@ export const getLatestArticles = async (req, res) => {
 // };
 
 export const getArticleBySlugController = async (req, res) => {
+    console.log("hey");
     try {
         const { slug } = req.params; // Get the article slug from the URL parameters
 
@@ -448,29 +449,32 @@ export const getArticleBySlugController = async (req, res) => {
         if (!article) {
             return res.status(404).json({ message: "Article not found" });
         }
-
-        let latestArticles = await Article.find({
-            $or: [
-                { tags: { $in: article.tags.map(tag => tag._id) } },
-                { primary_category: article.primary_category._id }
-            ],
-            _id: { $ne: article._id.toString() }, // Convert _id to a string for comparison
-            slug: { $ne: slug }, // Ensure the slug is not the same
-            published_at_datetime: { $ne: null } // Ensure the article is published
-        })
-            .sort({ published_at_datetime: -1 })
-            .limit(5)
-            .populate("primary_category", "name slug")
-            .populate("categories", "name slug")
-            .populate("tags", "name slug")
-            .populate("author", "name email social_profiles profile_picture")
-            .populate("credits", "name email social_profiles profile_picture")
-            .populate({
-                path: "live_blog_updates",
-                options: { sort: { createdAt: -1 } }
-            });
-
-        // Fallback to other articles if no latest articles found
+        let latestArticles = [];
+        if (article.primary_category) {
+            latestArticles = await Article.find({
+                $or: [
+                    { tags: { $in: article.tags.map(tag => tag._id) } },
+                    { primary_category: article.primary_category._id }
+                ],
+                _id: { $ne: article._id.toString() }, // Convert _id to a string for comparison
+                slug: { $ne: slug }, // Ensure the slug is not the same
+                published_at_datetime: { $ne: null } // Ensure the article is published
+            })
+                .sort({ published_at_datetime: -1 })
+                .limit(5)
+                .populate("primary_category", "name slug")
+                .populate("categories", "name slug")
+                .populate("tags", "name slug")
+                .populate("author", "name email social_profiles profile_picture")
+                .populate("credits", "name email social_profiles profile_picture")
+                .populate({
+                    path: "live_blog_updates",
+                    options: { sort: { createdAt: -1 } }
+                });
+    
+       
+        }
+     // Fallback to other articles if no latest articles found
         if (latestArticles.length === 0) {
             latestArticles = await Article.find({
                 _id: { $ne: article._id.toString() },
