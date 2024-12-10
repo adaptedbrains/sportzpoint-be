@@ -33,7 +33,7 @@ import { User } from '../model/user.model.js';
 
 
 export const publishPostController = async (req, res) => {
-    console.log("hi")
+    
     try {
         const { id } = req.params; // Get MongoDB _id from request parameters
 
@@ -49,8 +49,14 @@ export const publishPostController = async (req, res) => {
         if (!article) {
             return res.status(404).json({ message: 'Article not found' });
         }
+        const articleSlug = await Article.findOne({'slug':req.body.slug})
+        
+        
+        if(articleSlug && articleSlug.status!=='draft'){
 
-        // Check if there's an existing article with the same oldId but a different _id
+            throw new Error('Slug already exists for another article.');
+        }
+        
         if (article.oldId) {
             const existingArticle = await Article.findOne({
                 _id: article.oldId
