@@ -70,14 +70,17 @@ ArticleSchema.pre('save', async function (next) {
     if (!this.isModified('slug')) return next();
 
     try {
-        
+
         const existingArticle = await this.constructor.findOne({ slug: this.slug });
-        if(existingArticle.status!=='draft') next();
-        else
-        if (existingArticle && existingArticle.post_id !== this.post_id) {
-            throw new Error('Slug already exists for another article.');
-        }
-        next();
+        if (existingArticle) {
+
+            if (existingArticle && existingArticle.status !== 'draft') next();
+            else
+                if (existingArticle && existingArticle.post_id !== this.post_id) {
+                    throw new Error('Slug already exists for another article.');
+                }
+           
+        } else next();
     } catch (err) {
         next(err);
     }
