@@ -61,6 +61,16 @@ export const publishPostController = async (req, res) => {
                 console.log(`Deleted existing article with _id: ${existingArticle._id} and oldId: ${existingArticle.oldId}`);
             }
         }
+        const existingArticleBySlug = await Article.findOne({
+            slug: article.slug,
+            _id: { $ne: article._id }, // Exclude the current article by _id
+        });
+
+        if (existingArticleBySlug) {
+            // Delete the existing article with the same slug
+            await Article.deleteOne({ _id: existingArticleBySlug._id });
+            console.log(`Deleted existing article with _id: ${existingArticleBySlug._id} and slug: ${existingArticleBySlug.slug}`);
+        }
 
         // Update the published_at_datetime to the current date
         article.published_at_datetime = new Date();
